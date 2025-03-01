@@ -48,7 +48,7 @@ export default function Login() {
     return (
         <div
             className="d-flex justify-content-center align-items-center vh-100"
-            style={{ backgroundImage: "url('/bg_login.png')", backgroundSize: "cover", backgroundPosition: "center" }}
+            style={{ backgroundImage: "url('/bg_login_day.png')", backgroundSize: "cover", backgroundPosition: "center" }}
         >
             <main
                 className="card p-4 shadow-sm w-25"

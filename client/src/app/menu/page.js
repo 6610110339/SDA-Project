@@ -1,7 +1,7 @@
 "use client";
 import { useRouter } from "next/navigation";
 
-export default function MainMenu() {
+export default function Menu() {
   const router = useRouter();
 
   return (
