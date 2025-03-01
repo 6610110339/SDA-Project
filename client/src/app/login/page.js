@@ -1,7 +1,10 @@
 "use client";
+
+import { useEffect } from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import 'bootstrap/dist/css/bootstrap.min.css';
+import Head from "next/head";
 
 export default function Login() {
     const router = useRouter();
@@ -10,6 +13,15 @@ export default function Login() {
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+        const token = localStorage.getItem("authToken");
+        if (token) {
+            setSuccess("Login successful!");
+            setIsLoggedIn(true);
+            router.push("/menu");
+        }
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -34,11 +46,13 @@ export default function Login() {
                 throw new Error(data.error.message);
             }
 
+            localStorage.setItem("authToken", data.jwt);
+
             setSuccess("Login successful!");
-            setIsLoggedIn(true); 
+            setIsLoggedIn(true);
 
             setTimeout(() => {
-                router.push("/menu"); 
+                router.push("/menu");
             }, 1000);
         } catch (err) {
             setError("Login failed: " + err.message);
@@ -58,7 +72,7 @@ export default function Login() {
                 {error && <div className="alert alert-danger">{error}</div>}
                 {success && <div className="alert alert-success">{success}</div>}
 
-                {!isLoggedIn && ( 
+                {!isLoggedIn && (
                     <form onSubmit={handleSubmit}>
                         <div className="mb-3">
                             <label htmlFor="username" className="form-label">Username:</label>

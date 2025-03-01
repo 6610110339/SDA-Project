@@ -11,11 +11,6 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-export const metadata = {
-  title: "No Name Group",
-  description: "Wow! You can see this? Good Job but nothing here!",
-};
-
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
