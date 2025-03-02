@@ -3,48 +3,96 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
-import Head from "next/head";
-import { Navbar, Nav, Container, Button } from "react-bootstrap";
-import "./menu.css";
+import { Navbar, Nav, Container, Button, Modal, ListGroup } from "react-bootstrap";
 
 export default function MainMenu() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [showModalServer, setShowModalServer] = useState(false);
+  const [showModalLogout, setShowModalLogout] = useState(false);
+  const [selectedServer, setSelectedServer] = useState(null);
+
+  const servers = [
+    { id: 1, name: "Asia Server", ip: "ws://localhost:3001" },
+  ];
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) {
       router.push("/login");
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("selectedServer");
     } else {
       setIsLoggedIn(true);
     }
+
+    const storedServer = JSON.parse(localStorage.getItem("selectedServer"));
+    if (storedServer) setSelectedServer(storedServer);
   }, []);
 
-  const buttonLogout = async () => {
+  const handleJoinServer = (server) => {
+    localStorage.setItem("selectedServer", JSON.stringify(server));
+    setSelectedServer(server);
+    setShowModal(false);
+    router.push("/game");
+  };
+
+  const buttonLogout = () => {
     setIsLoggedIn(false);
     localStorage.removeItem("authToken");
+    localStorage.removeItem("selectedServer");
     router.push("/login");
   };
 
   return (
     <>
-      <Head>
-        <title>Main Menu - RPG Online</title>
-        <meta name="description" content="Welcome to the RPG Online Main Menu" />
-      </Head>
       <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
-          <Navbar.Brand href="#">RPG Online</Navbar.Brand>
+          <Navbar.Brand >RPG Online</Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
-              <Nav.Link href="#">Start Game</Nav.Link>
-              <Nav.Link href="#">Settings</Nav.Link>
+              <Nav.Link onClick={() => setShowModalServer(true)} style={{ cursor: "pointer" }}>
+                Start Game {selectedServer ? `(${selectedServer.name})` : ""}
+              </Nav.Link>
+              {
+                //<Nav.Link>Market</Nav.Link>
+                //<Nav.Link>About</Nav.Link>
+                //<Nav.Link>Settings</Nav.Link>
+              }
             </Nav>
-            <Button variant="danger" onClick={buttonLogout}>Logout</Button>
+            <Button variant="danger" onClick={() => setShowModalLogout(true)}>Logout</Button>
           </Navbar.Collapse>
         </Container>
       </Navbar>
+
+      <Modal show={showModalServer} onHide={() => setShowModalServer(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Select a Server</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <ListGroup>
+            {servers.map((server) => (
+              <ListGroup.Item key={server.id} className="d-flex justify-content-between align-items-center">
+                {server.name}
+                <Button variant="success" onClick={() => handleJoinServer(server)}>Join</Button>
+              </ListGroup.Item>
+            ))}
+          </ListGroup>
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={showModalLogout} onHide={() => setShowModalLogout(false)} centered>
+        <Modal.Header >
+          <Modal.Title>Are you sure?</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="d-flex gap-2">
+            <Button className="w-50" variant="secondary" onClick={() => setShowModalLogout(false)}>Cancel</Button>
+            <Button className="w-50" variant="danger" onClick={() => buttonLogout()}>Logout</Button>
+          </div>
+        </Modal.Body>
+      </Modal>
     </>
   );
 }
