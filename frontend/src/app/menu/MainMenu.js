@@ -103,7 +103,7 @@ export default function MainMenu() {
             variant="success"
             size="lg"
             onClick={() => setShowModalServer(true)}
-            className="mb-3"
+            className="mb-3 fw-bold"
           >
             Start Game
           </Button>
@@ -112,7 +112,7 @@ export default function MainMenu() {
               variant="warning"
               size="lg"
               onClick={() => router.push("/admin")}
-              className="mb-3"
+              className="mb-3 fw-bold"
             >
               Admin Panel
             </Button>
@@ -121,6 +121,7 @@ export default function MainMenu() {
             variant="danger"
             size="lg"
             onClick={() => setShowModalLogout(true)}
+            className="mb-3 fw-bold"
           >
             Logout
           </Button>
@@ -130,19 +131,28 @@ export default function MainMenu() {
       {/* Server Modal */}
       <Modal show={showModalServer} onHide={() => setShowModalServer(false)} centered>
         <Modal.Header closeButton>
-          <Modal.Title>Select a Server</Modal.Title>
+          <Modal.Title className="fw-bold">Select a Server</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <ListGroup>
             {servers.map((server) => (
-              <ListGroup.Item key={server.id} className="d-flex justify-content-between align-items-center">
-                <div>
+              <ListGroup.Item
+                key={server.id}
+                className="d-flex justify-content-between align-items-center"
+              >
+                <div className="fw-bold">
                   {server.name}{" "}
-                  <span className={`badge rounded-pill ${server.status === "Online" ? "text-bg-success" : "text-bg-danger"}`}>
+                  <span
+                    className={`badge rounded-pill fw-bold ${server.status === "Online"
+                        ? "text-bg-success"
+                        : "text-bg-danger"
+                      }`}
+                  >
                     {server.status}
                   </span>
                 </div>
                 <Button
+                  className="fw-bold"
                   variant="success"
                   disabled={server.status !== "Online"}
                   onClick={() => handleJoinServer(server)}
