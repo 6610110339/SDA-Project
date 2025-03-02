@@ -3,8 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Navbar, Nav, Container, Button, Modal, ListGroup, Spinner } from "react-bootstrap";
-import { Collapse } from 'antd';
+import { Navbar, Nav, Container, Modal, ListGroup, Spinner } from "react-bootstrap";
+import { Collapse, Button, Tag } from 'antd';
 
 export default function Admin() {
   const router = useRouter();
@@ -14,13 +14,28 @@ export default function Admin() {
   const StageLists_Town = [
     {
       key: '1',
-      label: 'This is panelwow icon',
-      children: <p>Skidibi</p>,
+      label: <div><p>Stage 1</p><Tag color="#008000">Easy</Tag></div>,
+      children: <p><Button type="primary">GG</Button></p>,
     },
     {
       key: '2',
-      label: 'Thd',
-      children: <p>Skidibi</p>,
+      label: <div><p>Stage 2</p><Tag color="#008000">Easy</Tag></div>,
+      children: <p><Button type="primary">GG</Button></p>,
+    },
+    {
+      key: '3',
+      label: <div><p>Stage 3</p><Tag color="#f5b041">Normal</Tag></div>,
+      children: <p><Button type="primary">GG</Button></p>,
+    },
+    {
+      key: '4',
+      label: <div><p>Stage 4</p><Tag color="#f5b041">Normal</Tag></div>,
+      children: <p><Button type="primary">GG</Button></p>,
+    },
+    {
+      key: '5',
+      label: <div><p>Stage 5</p><Tag color="#c0392b">Hard</Tag></div>,
+      children: <p><Button type="primary">GG</Button></p>,
     },
   ];
 
@@ -65,13 +80,9 @@ export default function Admin() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
-              <Button
-                href="/menu"
-                className="fw-bold"
-                style={{ backgroundColor: "red", borderColor: "red" }}
-              >
-                Back to Menu
-              </Button>
+              <Nav.Link onClick={() => {
+                router.push("/menu")
+              }}>Back to Menu</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -83,7 +94,7 @@ export default function Admin() {
           justifyContent: "center",
           padding: "40px 20px",
           minHeight: "100vh",
-          backgroundImage: "url('/admin_bg.png')",
+          backgroundImage: "url('/bg_stagelist.png')",
           backgroundSize: "cover",
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
@@ -103,7 +114,13 @@ export default function Admin() {
             <ListGroup.Item className="bg-primary text-white fw-bold fs-5">
               🏢 Map 1 - Town
             </ListGroup.Item>
-            <Collapse defaultActiveKey={['1']} items={StageLists_Town} />
+            <Collapse items={StageLists_Town} />
+            <ListGroup.Item className="bg-secondary text-white fw-bold fs-5">
+              -
+            </ListGroup.Item>
+            <ListGroup.Item className="bg-secondary text-white fw-bold fs-5">
+              -
+            </ListGroup.Item>
             <ListGroup.Item className="bg-secondary text-white fw-bold fs-5">
               -
             </ListGroup.Item>

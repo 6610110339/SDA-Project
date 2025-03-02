@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
+import { Alert } from 'antd';
 
 export default function Login() {
     const router = useRouter();
@@ -89,10 +90,10 @@ export default function Login() {
                 </h2>
 
                 {error && (
-                    <div className="alert alert-danger text-center fw-bold">{error}</div>
+                    <Alert message={error} type="error" showIcon />
                 )}
                 {success && (
-                    <div className="alert alert-success text-center fw-bold">{success}</div>
+                    <Alert message={success} type="success" showIcon />
                 )}
 
                 {!isLoggedIn && (

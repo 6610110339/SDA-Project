@@ -78,13 +78,9 @@ export default function Admin() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
-              <Button
-                href="/menu"
-                className="fw-bold"
-                style={{ backgroundColor: "red", borderColor: "red" }}
-              >
-                Back to Menu
-              </Button>
+              <Nav.Link onClick={() => {
+                router.push("/menu")
+              }}>Back to Menu</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>

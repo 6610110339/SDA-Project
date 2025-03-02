@@ -10,7 +10,6 @@ export default function MainMenu() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
-  const [showModalServer, setShowModalServer] = useState(false);
   const [showModalLogout, setShowModalLogout] = useState(false);
 
   useEffect(() => {
@@ -45,6 +44,12 @@ export default function MainMenu() {
 
   }, []);
 
+  const buttonLogout = () => {
+    setIsLoggedIn(false);
+    localStorage.removeItem("authToken");
+    router.push("/login");
+  };
+
   return (
     <div className="main-menu-container">
       <div className="menu-card">
@@ -53,7 +58,7 @@ export default function MainMenu() {
           <Button
             variant="success"
             size="lg"
-            onClick={() => setShowModalServer(true)}
+            onClick={() => router.push("/stagelist")}
             className="mb-3 fw-bold"
           >
             Start Game
