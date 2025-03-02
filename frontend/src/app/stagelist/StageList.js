@@ -4,17 +4,25 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal, ListGroup, Spinner } from "react-bootstrap";
+import { Collapse } from 'antd';
 
 export default function Admin() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
-  const [showModalConfirm, setShowModalConfirm] = useState(false);
-  const [loadingServers, setLoadingServers] = useState(true);
-  const [servers, setServers] = useState([]);
 
-  const serverList = [{ id: 1, name: "COE 1", ip: "http://localhost:3001" }];
-  const [selectedServer, setSelectedServer] = useState(null);
+  const StageLists_Town = [
+    {
+      key: '1',
+      label: 'This is panelwow icon',
+      children: <p>Skidibi</p>,
+    },
+    {
+      key: '2',
+      label: 'Thd',
+      children: <p>Skidibi</p>,
+    },
+  ];
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -29,43 +37,22 @@ export default function Admin() {
     const fetchUserRole = async () => {
       try {
         const response = await fetch("http://localhost:1337/api/users/me?populate=role", {
-          headers: { Authorization: `Bearer ${token}` },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
 
         if (!response.ok) throw new Error("Failed to fetch user data");
 
         const userData = await response.json();
         setUserRole(userData.role.name || "NULL");
-        if (userData.role.name !== "Admin") router.push("/menu");
       } catch (error) {
         console.error("Error fetching user role:", error);
         setUserRole("NULL");
-        router.push("/menu");
       }
-    };
-
-    const checkServerStatus = async () => {
-      setLoadingServers(true);
-      const results = serverList.map((server) => ({ ...server, status: "Offline" }));
-
-      for (let i = 0; i < serverList.length; i++) {
-        try {
-          const response = await fetch(`${serverList[i].ip}/status`);
-          if (response.ok) {
-            const data = await response.json();
-            if (data.online) results[i].status = "Online";
-          }
-        } catch {
-          console.warn(`Server ${serverList[i].name} is offline.`);
-        }
-      }
-
-      setServers(results);
-      setLoadingServers(false);
     };
 
     fetchUserRole();
-    checkServerStatus();
   }, []);
 
   return (
@@ -73,7 +60,7 @@ export default function Admin() {
       <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm">
         <Container>
           <Navbar.Brand className="fw-bold">
-            🛠️ RPG Online - Admin Panel
+            ⚔️ RPG Online - Stage List
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
@@ -114,15 +101,15 @@ export default function Admin() {
         >
           <ListGroup className="shadow-lg rounded-4 overflow-hidden">
             <ListGroup.Item className="bg-primary text-white fw-bold fs-5">
-              ⚙️ Manage Servers
+              🏢 Map 1 - Town
             </ListGroup.Item>
+            <Collapse defaultActiveKey={['1']} items={StageLists_Town} />
             <ListGroup.Item className="bg-secondary text-white fw-bold fs-5">
-              👥 Manage Players
+              -
             </ListGroup.Item>
           </ListGroup>
         </div>
       </div>
-
     </>
   );
 }

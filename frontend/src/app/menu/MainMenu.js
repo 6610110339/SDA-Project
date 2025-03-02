@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal, ListGroup } from "react-bootstrap";
-import "./menu.css"; // Import the CSS file here
+import "./menu.css";
 
 export default function MainMenu() {
   const router = useRouter();
@@ -44,20 +44,6 @@ export default function MainMenu() {
     fetchUserRole();
 
   }, []);
-
-  const handleJoinServer = (server) => {
-    localStorage.setItem("selectedServer", JSON.stringify(server));
-    setSelectedServer(server);
-    setShowModalServer(false);
-    router.push("/game");
-  };
-
-  const buttonLogout = () => {
-    setIsLoggedIn(false);
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("selectedServer");
-    router.push("/login");
-  };
 
   return (
     <div className="main-menu-container">
