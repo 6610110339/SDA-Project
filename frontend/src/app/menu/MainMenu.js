@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal, ListGroup } from "react-bootstrap";
+import "./menu.css"; // Import the CSS file here
 
 export default function MainMenu() {
   const router = useRouter();
@@ -28,7 +29,7 @@ export default function MainMenu() {
       return;
     } else {
       setIsLoggedIn(true);
-    };
+    }
 
     const fetchUserRole = async () => {
       try {
@@ -94,32 +95,39 @@ export default function MainMenu() {
   };
 
   return (
-    <>
-      <Navbar bg="dark" variant="dark" expand="lg">
-        <Container>
-          <Navbar.Brand >RPG Online</Navbar.Brand>
-          <Navbar.Toggle aria-controls="basic-navbar-nav" />
-          <Navbar.Collapse id="basic-navbar-nav">
-            <Nav className="me-auto">
-              <Nav.Link onClick={() => setShowModalServer(true)} style={{ cursor: "pointer" }}>
-                Start Game
-              </Nav.Link>
-              {userRole === "Admin" && (
-                <Nav className="ms-auto">
-                  <Nav.Link href="/admin">Admin Panel</Nav.Link>
-                </Nav>
-              )}
-              {
-                //<Nav.Link>Market</Nav.Link>
-                //<Nav.Link>About</Nav.Link>
-                //<Nav.Link>Settings</Nav.Link>
-              }
-            </Nav>
-            <Button variant="danger" onClick={() => setShowModalLogout(true)}>Logout</Button>
-          </Navbar.Collapse>
-        </Container>
-      </Navbar>
+    <div className="main-menu-container">
+      <div className="menu-card">
+        <h1 className="menu-title">Welcome to RPG Online</h1>
+        <div className="menu-buttons">
+          <Button
+            variant="success"
+            size="lg"
+            onClick={() => setShowModalServer(true)}
+            className="mb-3"
+          >
+            Start Game
+          </Button>
+          {userRole === "Admin" && (
+            <Button
+              variant="warning"
+              size="lg"
+              onClick={() => router.push("/admin")}
+              className="mb-3"
+            >
+              Admin Panel
+            </Button>
+          )}
+          <Button
+            variant="danger"
+            size="lg"
+            onClick={() => setShowModalLogout(true)}
+          >
+            Logout
+          </Button>
+        </div>
+      </div>
 
+      {/* Server Modal */}
       <Modal show={showModalServer} onHide={() => setShowModalServer(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Select a Server</Modal.Title>
@@ -134,7 +142,11 @@ export default function MainMenu() {
                     {server.status}
                   </span>
                 </div>
-                <Button variant="success" disabled={server.status !== "Online"} onClick={() => handleJoinServer(server)}>
+                <Button
+                  variant="success"
+                  disabled={server.status !== "Online"}
+                  onClick={() => handleJoinServer(server)}
+                >
                   Join
                 </Button>
               </ListGroup.Item>
@@ -143,8 +155,9 @@ export default function MainMenu() {
         </Modal.Body>
       </Modal>
 
+      {/* Logout Modal */}
       <Modal show={showModalLogout} onHide={() => setShowModalLogout(false)} centered>
-        <Modal.Header >
+        <Modal.Header>
           <Modal.Title>Are you sure?</Modal.Title>
         </Modal.Header>
         <Modal.Body>
@@ -154,6 +167,6 @@ export default function MainMenu() {
           </div>
         </Modal.Body>
       </Modal>
-    </>
+    </div>
   );
 }

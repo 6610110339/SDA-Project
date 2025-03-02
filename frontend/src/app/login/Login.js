@@ -1,10 +1,8 @@
 "use client";
 
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import Head from "next/head";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 export default function Login() {
     const router = useRouter();
@@ -62,43 +60,95 @@ export default function Login() {
     return (
         <div
             className="d-flex justify-content-center align-items-center vh-100"
-            style={{ backgroundImage: "url('/bg_login_day.png')", backgroundSize: "cover", backgroundPosition: "center" }}
+            style={{
+                backgroundImage: "url('/bg_login_day.png')",
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+            }}
         >
             <main
-                className="card p-4 shadow-sm w-25"
-                style={{ backgroundColor: "rgba(255, 255, 255, 0.5)", backdropFilter: "blur(10px)" }}
+                className="card shadow-lg border-0 p-4"
+                style={{
+                    width: "100%",
+                    maxWidth: "400px",
+                    backgroundColor: "rgba(255, 255, 255, 0.15)",
+                    backdropFilter: "blur(12px)",
+                    borderRadius: "20px",
+                    color: "#fff",
+                    textShadow: "1px 1px 2px rgba(0,0,0,0.7)",
+                }}
             >
-                <h2 className="text-center mb-3">Welcome!</h2>
-                {error && <div className="alert alert-danger">{error}</div>}
-                {success && <div className="alert alert-success">{success}</div>}
+                <h2
+                    className="text-center mb-4"
+                    style={{
+                        fontWeight: "bold",
+                        fontSize: "32px",
+                    }}
+                >
+                    🌅 Welcome!
+                </h2>
+
+                {error && (
+                    <div className="alert alert-danger text-center fw-bold">{error}</div>
+                )}
+                {success && (
+                    <div className="alert alert-success text-center fw-bold">{success}</div>
+                )}
 
                 {!isLoggedIn && (
                     <form onSubmit={handleSubmit}>
                         <div className="mb-3">
-                            <label htmlFor="username" className="form-label">Username:</label>
+                            <label htmlFor="username" className="form-label">
+                                Username:
+                            </label>
                             <input
                                 type="text"
                                 id="username"
                                 name="username"
                                 className="form-control"
+                                placeholder="Enter your username"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
                                 required
+                                style={{
+                                    backgroundColor: "rgba(255, 255, 255, 0.2)",
+                                    border: "none",
+                                    color: "#fff",
+                                    borderRadius: "12px",
+                                }}
                             />
                         </div>
-                        <div className="mb-3">
-                            <label htmlFor="password" className="form-label">Password:</label>
+                        <div className="mb-4">
+                            <label htmlFor="password" className="form-label">
+                                Password:
+                            </label>
                             <input
                                 type="password"
                                 id="password"
                                 name="password"
                                 className="form-control"
+                                placeholder="Enter your password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 required
+                                style={{
+                                    backgroundColor: "rgba(255, 255, 255, 0.2)",
+                                    border: "none",
+                                    color: "#fff",
+                                    borderRadius: "12px",
+                                }}
                             />
                         </div>
-                        <button type="submit" className="btn btn-primary w-100">
+                        <button
+                            type="submit"
+                            className="btn btn-primary w-100"
+                            style={{
+                                padding: "12px",
+                                fontSize: "18px",
+                                fontWeight: "bold",
+                                borderRadius: "12px",
+                            }}
+                        >
                             Login
                         </button>
                     </form>
@@ -107,3 +157,4 @@ export default function Login() {
         </div>
     );
 }
+
