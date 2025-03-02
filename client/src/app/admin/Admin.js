@@ -17,8 +17,6 @@ export default function Admin() {
 
   const serverList = [
     { id: 1, name: "Asia Server", ip: "http://localhost:3001" },
-    { id: 2, name: "Europe Server", ip: "http://localhost:3002" },
-    { id: 3, name: "NA Server", ip: "http://localhost:3003" },
   ];
 
   useEffect(() => {
@@ -51,6 +49,10 @@ export default function Admin() {
     };
 
     fetchUserRole();
+    if (userRole == "Admin") {} else {
+      router.push("/menu");
+      return
+    };
 
     const checkServerStatus = async () => {
       setLoadingServers(true);
