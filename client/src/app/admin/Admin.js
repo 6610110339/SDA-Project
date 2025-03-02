@@ -42,6 +42,10 @@ export default function Admin() {
 
         const userData = await response.json();
         setUserRole(userData.role.name || "NULL");
+        if (userData.role.name == "Admin") {} else {
+          router.push("/menu");
+          return
+        };
       } catch (error) {
         console.error("Error fetching user role:", error);
         setUserRole("NULL");
@@ -49,10 +53,6 @@ export default function Admin() {
     };
 
     fetchUserRole();
-    if (userRole == "Admin") {} else {
-      router.push("/menu");
-      return
-    };
 
     const checkServerStatus = async () => {
       setLoadingServers(true);
