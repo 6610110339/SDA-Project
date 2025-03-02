@@ -4,14 +4,15 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal, ListGroup, Spinner } from "react-bootstrap";
+import { io } from "socket.io-client";
+
+const socket = io("http://localhost:3001");
 
 export default function Admin() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [showModalServer, setShowModalServer] = useState(false);
-  const [showModalLogout, setShowModalLogout] = useState(false);
-  const [selectedServer, setSelectedServer] = useState(null);
   const [servers, setServers] = useState([]);
   const [loadingServers, setLoadingServers] = useState(true);
 
@@ -24,7 +25,6 @@ export default function Admin() {
     if (!token) {
       router.push("/login");
       localStorage.removeItem("authToken");
-      localStorage.removeItem("selectedServer");
       return;
     } else {
       setIsLoggedIn(true);
@@ -79,23 +79,21 @@ export default function Admin() {
     };
 
     checkServerStatus();
-
-    const storedServer = JSON.parse(localStorage.getItem("selectedServer"));
-    if (storedServer) setSelectedServer(storedServer);
   }, []);
 
-  const handleJoinServer = (server) => {
-    localStorage.setItem("selectedServer", JSON.stringify(server));
-    setSelectedServer(server);
-    setShowModalServer(false);
-    router.push("/game");
-  };
-
-  const buttonLogout = () => {
-    setIsLoggedIn(false);
-    localStorage.removeItem("authToken");
-    localStorage.removeItem("selectedServer");
-    router.push("/login");
+  const handleStartServer = async () => {
+    try {
+      const response = await fetch("http://localhost:3001/start", { method: "POST" });
+      if (response.ok) {
+        const data = await response.json();
+        console.log(data.message);
+        setServers((prev) =>
+          prev.map((server) => ({ ...server, status: "Online" }))
+        );
+      }
+    } catch (error) {
+      console.error("Failed to start server:", error);
+    }
   };
 
   return (
@@ -108,7 +106,6 @@ export default function Admin() {
             <Nav className="ms-auto">
               <Nav.Link href="/menu">Back</Nav.Link>
             </Nav>
-            <Button variant="danger" onClick={() => setShowModalLogout(true)}>Logout</Button>
           </Navbar.Collapse>
         </Container>
       </Navbar>
@@ -122,6 +119,7 @@ export default function Admin() {
         </ListGroup.Item>
       </ListGroup>
 
+      {/* Modal Manage Servers */}
       <Modal show={showModalServer} onHide={() => setShowModalServer(false)} centered>
         <Modal.Header closeButton>
           <Modal.Title>Manage Servers</Modal.Title>
@@ -141,30 +139,15 @@ export default function Admin() {
                       {server.status}
                     </span>
                   </div>
-                  {server.status === "Offline" ?
-                    <Button variant="success">
-                      Start
-                    </Button>
-                    :
-                    <Button variant="danger">
-                      Stop
-                    </Button>}
+                  {server.status === "Offline" ? (
+                    <Button variant="success" onClick={() => handleStartServer()}>Start</Button>
+                  ) : (
+                    <Button variant="danger">Stop</Button>
+                  )}
                 </ListGroup.Item>
               ))}
             </ListGroup>
           )}
-        </Modal.Body>
-      </Modal>
-
-      <Modal show={showModalLogout} onHide={() => setShowModalLogout(false)} centered>
-        <Modal.Header>
-          <Modal.Title>Are you sure?</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="d-flex gap-2">
-            <Button className="w-50" variant="secondary" onClick={() => setShowModalLogout(false)}>Cancel</Button>
-            <Button className="w-50" variant="danger" onClick={() => buttonLogout()}>Logout</Button>
-          </div>
         </Modal.Body>
       </Modal>
     </>
