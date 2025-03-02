@@ -12,20 +12,12 @@ export default function MainMenu() {
   const [userRole, setUserRole] = useState(null);
   const [showModalServer, setShowModalServer] = useState(false);
   const [showModalLogout, setShowModalLogout] = useState(false);
-  const [selectedServer, setSelectedServer] = useState(null);
-  const [loadingServers, setLoadingServers] = useState(true);
-  const [servers, setServers] = useState([]);
-
-  const serverList = [
-    { id: 1, name: "COE 1", ip: "http://localhost:3001" },
-  ];
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
     if (!token) {
       router.push("/login");
       localStorage.removeItem("authToken");
-      localStorage.removeItem("selectedServer");
       return;
     } else {
       setIsLoggedIn(true);
@@ -50,33 +42,6 @@ export default function MainMenu() {
     };
 
     fetchUserRole();
-
-    const checkServerStatus = async () => {
-      setLoadingServers(true);
-      const results = serverList.map((server) => ({ ...server, status: "Offline" }));
-
-      for (let i = 0; i < serverList.length; i++) {
-        try {
-          const response = await fetch(`${serverList[i].ip}/status`, { method: "GET" });
-          if (response.ok) {
-            const data = await response.json();
-            if (data.online) {
-              results[i].status = "Online";
-            }
-          }
-        } catch (error) {
-          console.warn(`Server ${serverList[i].name} is offline.`);
-        }
-      }
-
-      setServers(results);
-      setLoadingServers(false);
-    };
-
-    checkServerStatus();
-
-    const storedServer = JSON.parse(localStorage.getItem("selectedServer"));
-    if (storedServer) setSelectedServer(storedServer);
 
   }, []);
 
@@ -127,43 +92,6 @@ export default function MainMenu() {
           </Button>
         </div>
       </div>
-
-      {/* Server Modal */}
-      <Modal show={showModalServer} onHide={() => setShowModalServer(false)} centered>
-        <Modal.Header closeButton>
-          <Modal.Title className="fw-bold">Select a Server</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <ListGroup>
-            {servers.map((server) => (
-              <ListGroup.Item
-                key={server.id}
-                className="d-flex justify-content-between align-items-center"
-              >
-                <div className="fw-bold">
-                  {server.name}{" "}
-                  <span
-                    className={`badge rounded-pill fw-bold ${server.status === "Online"
-                        ? "text-bg-success"
-                        : "text-bg-danger"
-                      }`}
-                  >
-                    {server.status}
-                  </span>
-                </div>
-                <Button
-                  className="fw-bold"
-                  variant="success"
-                  disabled={server.status !== "Online"}
-                  onClick={() => handleJoinServer(server)}
-                >
-                  Join
-                </Button>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-        </Modal.Body>
-      </Modal>
 
       {/* Logout Modal */}
       <Modal show={showModalLogout} onHide={() => setShowModalLogout(false)} centered>

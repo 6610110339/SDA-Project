@@ -145,42 +145,6 @@ export default function Admin() {
             <ListGroup.Item className="bg-primary text-white fw-bold fs-5">
               ⚙️ Manage Servers
             </ListGroup.Item>
-
-            {loadingServers ? (
-              <div className="text-center py-4">
-                <Spinner animation="border" variant="primary" />
-              </div>
-            ) : (
-              servers.map((server) => (
-                <ListGroup.Item
-                  key={server.id}
-                  className="d-flex justify-content-between align-items-center"
-                  style={{ padding: "1rem" }}
-                >
-                  <div className="fw-bold fs-6">
-                    {server.name}{" "}
-                    <span
-                      className={`badge rounded-pill fw-bold ${server.status === "Online"
-                        ? "bg-success"
-                        : "bg-danger"
-                        }`}
-                    >
-                      {server.status}
-                    </span>
-                  </div>
-                  <Button
-                    className="fw-bold"
-                    variant={
-                      server.status === "Offline" ? "success" : "danger"
-                    }
-                    onClick={() => handleShowModalConfirm(server)}
-                  >
-                    {server.status === "Offline" ? "Start" : "Stop"}
-                  </Button>
-                </ListGroup.Item>
-              ))
-            )}
-
             <ListGroup.Item className="bg-secondary text-white fw-bold fs-5">
               👥 Manage Players
             </ListGroup.Item>
