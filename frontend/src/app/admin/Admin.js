@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Navbar, Nav, Container, Button, ListGroup, Spinner } from "react-bootstrap";
+import { Navbar, Nav, Container, Button, Modal, ListGroup, Spinner } from "react-bootstrap";
 import { io } from "socket.io-client";
 
 const socket = io("http://localhost:3001");
@@ -13,6 +13,7 @@ export default function Admin() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [servers, setServers] = useState([]);
+  const [showModalConfirm, setShowModalConfirm] = useState(false);
   const [loadingServers, setLoadingServers] = useState(true);
 
   const serverList = [
@@ -80,29 +81,34 @@ export default function Admin() {
     checkServerStatus();
   }, []);
 
-  const handleStartServer = async () => {
-    try {
-      const response = await fetch("http://localhost:3001/start", { method: "POST" });
-      if (response.ok) {
-        setServers((prev) =>
-          prev.map((server) => ({ ...server, status: "Online" }))
-        );
-      }
-    } catch (error) {
-      console.error("Failed to start server:", error);
-    }
+  const [selectedServer, setSelectedServer] = useState(null);
+
+  const handleShowModalConfirm = (server) => {
+    setSelectedServer(server);
+    setShowModalConfirm(true);
   };
 
-  const handleStopServer = async () => {
+  const handleConfirmAction = async () => {
+    if (!selectedServer) return;
+
     try {
-      const response = await fetch("http://localhost:3001/stop", { method: "POST" });
+      const action = selectedServer.status === "Online" ? "stop" : "start";
+      const response = await fetch(`http://localhost:3001/${action}`, { method: "POST" });
+
       if (response.ok) {
         setServers((prev) =>
-          prev.map((server) => ({ ...server, status: "Offline" }))
+          prev.map((server) =>
+            server.id === selectedServer.id
+              ? { ...server, status: action === "start" ? "Online" : "Offline" }
+              : server
+          )
         );
       }
     } catch (error) {
-      console.error("Failed to stop server:", error);
+      console.error(`Failed to ${selectedServer.status === "Online" ? "stop" : "start"} server:`, error);
+    } finally {
+      setShowModalConfirm(false);
+      setSelectedServer(null);
     }
   };
 
@@ -120,33 +126,62 @@ export default function Admin() {
         </Container>
       </Navbar>
 
-      <ListGroup className="m-3" style={{ maxWidth: "800px", margin: "auto" }}>
-        <ListGroup.Item style={{ backgroundColor: "grey", color: "white" }}>Manage Servers</ListGroup.Item>
-        {loadingServers ? (
-          <div className="text-center my-3">
-            <Spinner animation="border" />
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "top",
+        minHeight: "100vh",
+        padding: "20px"
+      }}>
+        <ListGroup className="m-3" style={{ maxWidth: "600px", width: "100%" }}>
+          <ListGroup.Item style={{ backgroundColor: "grey", color: "white" }}>Manage Servers</ListGroup.Item>
+          {loadingServers ? (
+            <div className="text-center my-3">
+              <Spinner animation="border" />
+            </div>
+          ) : (
+            <ListGroup>
+              {servers.map((server) => (
+                <ListGroup.Item key={server.id} className="d-flex justify-content-between align-items-center">
+                  <div>
+                    {server.name}{" "}
+                    <span className={`badge rounded-pill ${server.status === "Online" ? "text-bg-success" : "text-bg-danger"}`}>
+                      {server.status}
+                    </span>
+                  </div>
+                  {server.status === "Offline" ? (
+                    <Button variant="success" onClick={() => handleShowModalConfirm(server)}>Start</Button>
+                  ) : (
+                    <Button variant="danger" onClick={() => handleShowModalConfirm(server)}>Stop</Button>
+                  )}
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          )}
+          <ListGroup.Item style={{ backgroundColor: "grey", color: "white" }}>Manage Players</ListGroup.Item>
+        </ListGroup>
+      </div>
+
+      <Modal show={showModalConfirm} onHide={() => setShowModalConfirm(false)} centered>
+        <Modal.Header>
+          <Modal.Title>Confirm Action</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedServer ? (
+            <p>Are you sure you want to {selectedServer.status === "Online" ? "stop" : "start"} <b>{selectedServer.name}</b>?</p>
+          ) : (
+            <p>Loading...</p>
+          )}
+          <div className="d-flex gap-2">
+            <Button className="w-50" variant="secondary" onClick={() => setShowModalConfirm(false)}>Cancel</Button>
+            <Button className="w-50" variant={selectedServer?.status === "Online" ? "danger" : "success"} onClick={handleConfirmAction}>
+              {selectedServer?.status === "Online" ? "Stop" : "Start"}
+            </Button>
           </div>
-        ) : (
-          <ListGroup>
-            {servers.map((server) => (
-              <ListGroup.Item key={server.id} className="d-flex justify-content-between align-items-center">
-                <div>
-                  {server.name}{" "}
-                  <span className={`badge rounded-pill ${server.status === "Online" ? "text-bg-success" : "text-bg-danger"}`}>
-                    {server.status}
-                  </span>
-                </div>
-                {server.status === "Offline" ? (
-                  <Button variant="success" onClick={() => handleStartServer()}>Start</Button>
-                ) : (
-                  <Button variant="danger" onClick={() => handleStopServer()}>Stop</Button>
-                )}
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-        )}
-        <ListGroup.Item style={{ backgroundColor: "grey", color: "white" }}>Manage Players</ListGroup.Item>
-      </ListGroup>
+        </Modal.Body>
+      </Modal>
+
+
     </>
   );
 }
