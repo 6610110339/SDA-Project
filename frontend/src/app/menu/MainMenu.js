@@ -12,9 +12,11 @@ export default function MainMenu() {
   const [showModalServer, setShowModalServer] = useState(false);
   const [showModalLogout, setShowModalLogout] = useState(false);
   const [selectedServer, setSelectedServer] = useState(null);
+  const [loadingServers, setLoadingServers] = useState(true);
+  const [servers, setServers] = useState([]);
 
-  const servers = [
-    { id: 1, name: "Asia Server", ip: "ws://localhost:3001" },
+  const serverList = [
+    { id: 1, name: "COE 1", ip: "http://localhost:3001" },
   ];
 
   useEffect(() => {
@@ -48,6 +50,30 @@ export default function MainMenu() {
 
     fetchUserRole();
 
+    const checkServerStatus = async () => {
+      setLoadingServers(true);
+      const results = serverList.map((server) => ({ ...server, status: "Offline" }));
+
+      for (let i = 0; i < serverList.length; i++) {
+        try {
+          const response = await fetch(`${serverList[i].ip}/status`, { method: "GET" });
+          if (response.ok) {
+            const data = await response.json();
+            if (data.online) {
+              results[i].status = "Online";
+            }
+          }
+        } catch (error) {
+          console.warn(`Server ${serverList[i].name} is offline.`);
+        }
+      }
+
+      setServers(results);
+      setLoadingServers(false);
+    };
+
+    checkServerStatus();
+
     const storedServer = JSON.parse(localStorage.getItem("selectedServer"));
     if (storedServer) setSelectedServer(storedServer);
 
@@ -76,7 +102,7 @@ export default function MainMenu() {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="me-auto">
               <Nav.Link onClick={() => setShowModalServer(true)} style={{ cursor: "pointer" }}>
-                Start Game {selectedServer ? `` : ""}
+                Start Game
               </Nav.Link>
               {userRole === "Admin" && (
                 <Nav className="ms-auto">
@@ -102,8 +128,15 @@ export default function MainMenu() {
           <ListGroup>
             {servers.map((server) => (
               <ListGroup.Item key={server.id} className="d-flex justify-content-between align-items-center">
-                {server.name}
-                <Button variant="success" onClick={() => handleJoinServer(server)}>Join</Button>
+                <div>
+                  {server.name}{" "}
+                  <span className={`badge rounded-pill ${server.status === "Online" ? "text-bg-success" : "text-bg-danger"}`}>
+                    {server.status}
+                  </span>
+                </div>
+                <Button variant="success" disabled={server.status !== "Online"} onClick={() => handleJoinServer(server)}>
+                  Join
+                </Button>
               </ListGroup.Item>
             ))}
           </ListGroup>

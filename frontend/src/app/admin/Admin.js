@@ -4,17 +4,14 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal, ListGroup, Spinner } from "react-bootstrap";
-import { io } from "socket.io-client";
-
-const socket = io("http://localhost:3001");
 
 export default function Admin() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
-  const [servers, setServers] = useState([]);
   const [showModalConfirm, setShowModalConfirm] = useState(false);
   const [loadingServers, setLoadingServers] = useState(true);
+  const [servers, setServers] = useState([]);
 
   const serverList = [
     { id: 1, name: "COE 1", ip: "http://localhost:3001" },
