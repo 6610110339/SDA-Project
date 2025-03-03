@@ -6,6 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal, ListGroup } from "react-bootstrap";
 import { UserOutlined } from '@ant-design/icons';
 import { Collapse, Tag, Avatar } from 'antd';
+import ProfileMenu from "../ProfileMenu";
 
 export default function Admin() {
   const router = useRouter();
@@ -108,6 +109,9 @@ export default function Admin() {
 
   return (
     <>
+      {/* ✅ Add the ProfileMenu */}
+      <ProfileMenu />
+
       <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm" fixed="top">
         <Container>
           <Navbar.Brand className="fw-bold">

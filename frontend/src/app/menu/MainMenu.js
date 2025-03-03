@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal, ListGroup } from "react-bootstrap";
 import "./menu.css";
+import ProfileMenu from "../ProfileMenu";
 
 export default function MainMenu() {
   const router = useRouter();
@@ -56,6 +57,10 @@ export default function MainMenu() {
 
   return (
     <div className="main-menu-container">
+
+      {/* ✅ Add the ProfileMenu at the top */}
+      <ProfileMenu />
+
       <div className="menu-card">
         <h1 className="menu-title">Welcome to RPG Online</h1>
         <div className="menu-buttons">
