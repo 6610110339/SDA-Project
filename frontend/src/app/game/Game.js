@@ -130,8 +130,11 @@ export default function Game() {
   };
 
   const handleAttack = () => {
+    const monster_hurt = new Audio("/sounds/monster_hurt.mp3");
     if (monsterHP >= 0) {
       setMonsterHP(monsterHP - 2);
+      monster_hurt.volume = 0.25
+      monster_hurt.play()
       if ((monsterHP - 2) <= 0) {
         setIsMonsterDefeated(true);
         if (currentMonsterIndex < monsterList.length - 1) {
