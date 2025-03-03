@@ -398,6 +398,46 @@ export interface ApiActiveStageListActiveStageList
   };
 }
 
+export interface ApiCharacterCharacter extends Struct.CollectionTypeSchema {
+  collectionName: 'characters';
+  info: {
+    displayName: 'Characters';
+    pluralName: 'characters';
+    singularName: 'character';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    Class_Level: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<1>;
+    Class_Name: Schema.Attribute.Enumeration<['SwordMan', 'Wizard', 'Archer']> &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<'SwordMan'>;
+    Class_XP: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<0>;
+    Coins: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<0>;
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::character.character'
+    > &
+      Schema.Attribute.Private;
+    owner: Schema.Attribute.Relation<'oneToOne', 'admin::user'>;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface ApiMonsterListMonsterList extends Struct.CollectionTypeSchema {
   collectionName: 'monster_lists';
   info: {
@@ -938,6 +978,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::active-stage-list.active-stage-list': ApiActiveStageListActiveStageList;
+      'api::character.character': ApiCharacterCharacter;
       'api::monster-list.monster-list': ApiMonsterListMonsterList;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;

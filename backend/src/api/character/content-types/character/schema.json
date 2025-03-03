@@ -1,0 +1,44 @@
+{
+  "kind": "collectionType",
+  "collectionName": "characters",
+  "info": {
+    "singularName": "character",
+    "pluralName": "characters",
+    "displayName": "Characters"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "Class_Name": {
+      "type": "enumeration",
+      "enum": [
+        "SwordMan",
+        "Wizard",
+        "Archer"
+      ],
+      "required": true,
+      "default": "SwordMan"
+    },
+    "Class_XP": {
+      "type": "integer",
+      "required": true,
+      "default": 0
+    },
+    "Class_Level": {
+      "type": "integer",
+      "default": 1,
+      "required": true
+    },
+    "Coins": {
+      "type": "integer",
+      "default": 0,
+      "required": true
+    },
+    "owner": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "admin::user"
+    }
+  }
+}

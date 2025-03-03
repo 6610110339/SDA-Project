@@ -4,9 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal, ButtonGroup } from "react-bootstrap";
-import { UserOutlined } from '@ant-design/icons';
 import { Avatar, Flex } from 'antd';
-import OrderUI from "@/components/OrderUI";
 
 export default function Game() {
   const router = useRouter();
@@ -20,37 +18,14 @@ export default function Game() {
   const [stage, setStage] = useState(null);
   const [instanceID, setInstanceID] = useState(null);
 
-  const [userCharacters, setUserCharacters] = useState([{
-    "id": 1,
-    "name": "Warrior",
-    "level": 10,
-    "health": 500,
-    "attack": 50,
-    "defense": 30,
-    "image": "/Characters/WARRIOR.png"
-  },
-  {
-    "id": 2,
-    "name": "Mage",
-    "level": 8,
-    "health": 300,
-    "attack": 80,
-    "defense": 20,
-    "image": "/Characters/MAGE.png"
-  },
-  {
-    "id": 3,
-    "name": "Archer",
-    "level": 9,
-    "health": 350,
-    "attack": 60,
-    "defense": 25,
-    "image": "/Characters/ARCHER.png"
-  }]);
+  const [currentTurn, setCurrentTurn] = useState(null);
+  const [userCharacters, setUserCharacters] = useState([]);
+  const [charactersHP, setCharactersHP] = useState(100);
+  const [isCharactersDefeated, setIsCharactersDefeated] = useState(false);
   const [monsterList, setMonsterList] = useState([]);
   const [currentMonsterIndex, setCurrentMonsterIndex] = useState(0);
   const [monsterHP, setMonsterHP] = useState(100);
-  const [isDefeated, setIsDefeated] = useState(false);
+  const [isMonsterDefeated, setIsMonsterDefeated] = useState(false);
   const [isEnded, setIsEnded] = useState(false);
 
   const baseStyle = {
@@ -85,6 +60,7 @@ export default function Game() {
         const userData = await response.json();
         setUserData(userData || "NULL");
         setUserRole(userData.role.name || "NULL");
+        setCurrentTurn(userData.username);
       } catch (error) {
         console.error("Error fetching user role:", error);
         setUserRole("NULL");
@@ -156,10 +132,10 @@ export default function Game() {
     if (monsterHP >= 0) {
       setMonsterHP(monsterHP - 2);
       if ((monsterHP - 2) <= 0) {
-        setIsDefeated(true);
+        setIsMonsterDefeated(true);
         if (currentMonsterIndex < monsterList.length - 1) {
           setTimeout(() => {
-            setIsDefeated(false);
+            setIsMonsterDefeated(false);
             setCurrentMonsterIndex(currentMonsterIndex + 1);
             setMonsterHP(monsterList[currentMonsterIndex + 1].health);
           }, 1000);
@@ -225,7 +201,47 @@ export default function Game() {
                 >
                   {i === 0 ? (
                     <div>
-                      <OrderUI userCharacters={userCharacters} waveMonsters={monsterList} />
+                      <h2 style={{ fontSize: "16px" }}>🔹 Current Turn: {currentTurn}</h2>
+                    </div>
+                  ) : i === 1 ? (
+                    <div>
+                      <div>
+                        <div className="battle-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", height: "100vh", color: "white", textAlign: "center", padding: "20px" }}>
+                          {monsterList.length > 0 && !isEnded ? (
+                            <div style={{ textAlign: "center" }}>
+                              {isMonsterDefeated ? (
+                                <h3>Character Defeated!</h3>
+                              ) : (
+                                <>
+                                  <h2>Your Character (Lv. {monsterList[currentMonsterIndex].level})</h2>
+                                  <img
+                                    src={`/Monster/${monsterList[currentMonsterIndex].id}.png`}
+                                    style={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px" }}
+                                  />
+                                  <div className="progress" style={{ width: "300px", height: "18px", backgroundColor: "#333", borderRadius: "5px", margin: "10px auto", position: "relative" }}>
+                                    <div className="progress-bar bg-danger"
+                                      style={{
+                                        width: `${(monsterHP / monsterList[currentMonsterIndex]?.health) * 100}%`,
+                                        height: "100%",
+                                        borderRadius: "5px"
+                                      }}>
+                                      <span style={{ fontSize: "14px", position: "absolute", width: "100%", textAlign: "center", fontWeight: "bold" }}>
+                                        {monsterHP} / {monsterList[currentMonsterIndex]?.health}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          ) : (
+                            <h3>You Lost!</h3>
+                          )}
+                          <div style={{ position: "absolute", bottom: "20px", display: "flex", gap: "15px" }}>
+                            <button className="btn btn-danger" onClick={handleAttack} style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>⚔️ Attack</button>
+                            <button className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>🌀 Skill</button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   ) : i === 3 ? (
                     <div>
@@ -233,7 +249,7 @@ export default function Game() {
                         <div className="battle-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", height: "100vh", color: "white", textAlign: "center", padding: "20px" }}>
                           {monsterList.length > 0 && !isEnded ? (
                             <div style={{ textAlign: "center" }}>
-                              {isDefeated ? (
+                              {isMonsterDefeated ? (
                                 <h3>Monster Defeated! Prepare for next wave!</h3>
                               ) : (
                                 <>
@@ -268,7 +284,7 @@ export default function Game() {
                       </div>
                     </div>
                   ) : (
-                    ``
+                    ""
                   )}
                 </div>
               ))}
