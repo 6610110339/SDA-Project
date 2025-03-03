@@ -23,6 +23,7 @@ export default function Game() {
   const [currentMonsterIndex, setCurrentMonsterIndex] = useState(0);
   const [monsterHP, setMonsterHP] = useState(100);
   const [isDefeated, setIsDefeated] = useState(false);
+  const [isEnded, setIsEnded] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -66,7 +67,6 @@ export default function Game() {
 
         const data = await response.json();
         setMonsterList(data.data[0].MonsterData);
-        console.log(data.data[0].MonsterData)
       } catch (error) {
         console.error("Error fetching monster data:", error);
       }
@@ -77,7 +77,8 @@ export default function Game() {
 
     if (!selectStage || !instanceID) {
       setShowModalErrorInstance(true);
-    }
+      return;
+    };
 
   }, []);
 
@@ -118,15 +119,15 @@ export default function Game() {
       setMonsterHP(monsterHP - 10);
       if ((monsterHP - 10) <= 0) {
         setIsDefeated(true);
-        setTimeout(() => {
-          if (currentMonsterIndex < monsterList.length - 1) {
+        if (currentMonsterIndex < monsterList.length - 1) {
+          setTimeout(() => {
             setIsDefeated(false);
             setCurrentMonsterIndex(currentMonsterIndex + 1);
             setMonsterHP(100);
-          } else {
-            console.log("All monsters defeated!");
-          }
-        }, 1000);
+          }, 1000);
+        } else {
+          setIsEnded(true);
+        }
       }
     }
   };
@@ -173,23 +174,28 @@ export default function Game() {
             <div className="monster-list" style={{ color: "white", textAlign: "center" }}>
               {monsterList.length > 0 ? (
                 <div style={{ marginBottom: "20px" }}>
-                  <h3>{monsterList[currentMonsterIndex].name} (Level {monsterList[currentMonsterIndex].level})</h3>
 
-                  <img
-                    src={`/Monster/${monsterList[currentMonsterIndex].id}.png`} 
-                    style={{ width: "150px", height: "150px", objectFit: "cover", borderRadius: "10px" }}
-                  />
-
-                  <div className="progress mt-3" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-                    <div className="progress-bar bg-danger" style={{ width: `${monsterHP}%` }}>
-                      {monsterHP}%
-                    </div>
-                  </div>
-
-                  {isDefeated ? (
-                    <p className="mt-3" style={{ color: "red", fontSize: "18px", fontWeight: "bold" }}></p>
+                  {isEnded ? (
+                    ""
                   ) : (
-                    <button className="btn btn-danger mt-3" onClick={handleAttack}>🔥 Attack</button>
+                    isDefeated ? (
+                      ""
+                    ) : (
+                      <>                  <h3>{monsterList[currentMonsterIndex].name} (Level {monsterList[currentMonsterIndex].level})</h3>
+
+                      <img
+                        src={`/Monster/${monsterList[currentMonsterIndex].id}.png`}
+                        style={{ width: "150px", height: "150px", objectFit: "cover", borderRadius: "10px" }}
+                      />
+    
+                      <div className="progress mt-3" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                        <div className="progress-bar bg-danger" style={{ width: `${monsterHP}%` }}>
+                          {monsterHP}%
+                        </div>
+                      </div>
+                      <button className="btn btn-danger mt-3" onClick={handleAttack}>🔥 Attack</button>
+                      </>
+                    )
                   )}
                 </div>
               ) : (
