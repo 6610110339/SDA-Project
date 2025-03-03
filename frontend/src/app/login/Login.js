@@ -220,7 +220,9 @@ export default function Login() {
                                 setSuccess("");
                             }}
                         >
-                            {showRegister ? "Already have an account? Login" : "Don't have an account? Register"}
+                            {showRegister
+                                ? "Already have an account? Login"
+                                : "Don't have an account? Register"}
                         </button>
                     </div>
                 )}
@@ -228,5 +230,7 @@ export default function Login() {
         </div>
     );
 }
+
+
 
 

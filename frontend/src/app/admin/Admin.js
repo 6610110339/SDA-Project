@@ -6,6 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Modal, ListGroup, Spinner } from "react-bootstrap";
 import { UserOutlined } from '@ant-design/icons';
 import { Collapse, Button, Tag, Avatar } from 'antd';
+import ProfileMenu from "../ProfileMenu";
 
 export default function Admin() {
   const router = useRouter();
@@ -34,7 +35,7 @@ export default function Admin() {
         if (!response.ok) throw new Error("Failed to fetch user data");
 
         const userData = await response.json();
-        setUserData(userData || "NULL")
+        setUserData(userData || "NULL");
         setUserRole(userData.role.name || "NULL");
         if (userData.role.name !== "Admin") router.push("/menu");
       } catch (error) {
@@ -49,6 +50,18 @@ export default function Admin() {
 
   return (
     <>
+      {/* ProfileMenu floating on top */}
+      <div
+        style={{
+          position: "fixed",
+          top: "10px",
+          right: "20px",
+          zIndex: 1050,
+        }}
+      >
+        <ProfileMenu />
+      </div>
+
       <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm" fixed="top">
         <Container>
           <Navbar.Brand className="fw-bold">
@@ -57,14 +70,18 @@ export default function Admin() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
-              {
-                token ? (<Avatar
+              {token ? (
+                <Avatar
                   size={40}
                   style={{ color: "white" }}
-                  icon={<UserOutlined />}></Avatar>) : ("")}
-              <Nav.Link onClick={() => {
-                router.push("/menu")
-              }}>Back to Menu</Nav.Link>
+                  icon={<UserOutlined />}
+                />
+              ) : (
+                ""
+              )}
+              <Nav.Link onClick={() => router.push("/menu")}>
+                Back to Menu
+              </Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -102,7 +119,6 @@ export default function Admin() {
           </ListGroup>
         </div>
       </div>
-
     </>
   );
 }
