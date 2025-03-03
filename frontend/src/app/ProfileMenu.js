@@ -59,6 +59,11 @@ export default function ProfileMenu() {
                 <p>Loading...</p>
             ) : user ? (
                 <>
+                    <p><strong>=== Game Profile ===</strong></p>
+                    <p><strong>Level:</strong> 1</p>
+                    <p><strong>XP:</strong> 26% (263/5889)</p>
+                    <p><strong>Class:</strong> Archer</p>
+                    <p><strong>=== User Profile ===</strong></p>
                     <p><strong>Username:</strong> {user.username}</p>
                     <p><strong>Email:</strong> {user.email}</p>
                     <p><strong>Role:</strong> {user.role?.name || "N/A"}</p>
@@ -82,7 +87,7 @@ export default function ProfileMenu() {
         <div>
             <Popover
                 content={content}
-                title="Profile"
+                title=""
                 trigger="click"
                 placement="bottomRight"
             >
