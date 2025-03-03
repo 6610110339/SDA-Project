@@ -18,7 +18,11 @@ export default function Game() {
   const [showModalErrorInstance, setShowModalErrorInstance] = useState(false);
   const [stage, setStage] = useState(null);
   const [instanceID, setInstanceID] = useState(null);
+
   const [monsterList, setMonsterList] = useState([]);
+  const [currentMonsterIndex, setCurrentMonsterIndex] = useState(0);
+  const [monsterHP, setMonsterHP] = useState(100);
+  const [isDefeated, setIsDefeated] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -109,6 +113,24 @@ export default function Game() {
     }
   };
 
+  const handleAttack = () => {
+    if (monsterHP >= 10) {
+      setMonsterHP(monsterHP - 10);
+      if ((monsterHP - 10) <= 0) {
+        setIsDefeated(true);
+        setTimeout(() => {
+          if (currentMonsterIndex < monsterList.length - 1) {
+            setIsDefeated(false);
+            setCurrentMonsterIndex(currentMonsterIndex + 1);
+            setMonsterHP(100);
+          } else {
+            console.log("All monsters defeated!");
+          }
+        }, 1000);
+      }
+    }
+  };
+
   return (
     <>
       <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm" fixed="top">
@@ -148,19 +170,28 @@ export default function Game() {
           }}>
           <div>
 
-            {/* แสดงชื่อ Monster และ HP% ทีละตัว */}
             <div className="monster-list" style={{ color: "white", textAlign: "center" }}>
               {monsterList.length > 0 ? (
-                monsterList.map((monster, index) => (
-                  <div key={index} style={{ marginBottom: "20px" }}>
-                    <h3>{monster.name} (Level {monster.level})</h3>
-                    <div className="progress" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-                      <div className="progress-bar bg-danger" style={{ width: `${(monster.health / 10) * 100}%` }}>
-                        {((monster.health / 10) * 100).toFixed(0)}%
-                      </div>
+                <div style={{ marginBottom: "20px" }}>
+                  <h3>{monsterList[currentMonsterIndex].name} (Level {monsterList[currentMonsterIndex].level})</h3>
+
+                  <img
+                    src={`/monster_${monsterList[currentMonsterIndex].id}.png`} 
+                    style={{ width: "150px", height: "150px", objectFit: "cover", borderRadius: "10px" }}
+                  />
+
+                  <div className="progress mt-3" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                    <div className="progress-bar bg-danger" style={{ width: `${monsterHP}%` }}>
+                      {monsterHP}%
                     </div>
                   </div>
-                ))
+
+                  {isDefeated ? (
+                    <p className="mt-3" style={{ color: "red", fontSize: "18px", fontWeight: "bold" }}></p>
+                  ) : (
+                    <button className="btn btn-danger mt-3" onClick={handleAttack}>🔥 Attack</button>
+                  )}
+                </div>
               ) : (
                 <p>Loading monsters...</p>
               )}
