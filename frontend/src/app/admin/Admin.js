@@ -50,17 +50,6 @@ export default function Admin() {
 
   return (
     <>
-      {/* ProfileMenu floating on top */}
-      <div
-        style={{
-          position: "fixed",
-          top: "10px",
-          right: "20px",
-          zIndex: 1050,
-        }}
-      >
-        <ProfileMenu />
-      </div>
 
       <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm" fixed="top">
         <Container>
@@ -70,14 +59,8 @@ export default function Admin() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
-              {token ? (
-                <Avatar
-                  size={40}
-                  style={{ color: "white" }}
-                  icon={<UserOutlined />}
-                />
-              ) : (
-                ""
+              {token && (
+                <ProfileMenu />
               )}
               <Nav.Link onClick={() => router.push("/menu")}>
                 Back to Menu

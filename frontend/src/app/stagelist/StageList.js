@@ -109,9 +109,6 @@ export default function Admin() {
 
   return (
     <>
-      {/* ✅ Add the ProfileMenu */}
-      <ProfileMenu />
-
       <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm" fixed="top">
         <Container>
           <Navbar.Brand className="fw-bold">
@@ -120,7 +117,7 @@ export default function Admin() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
-              {token && <Avatar size={40} style={{ color: "white" }} icon={<UserOutlined />} />}
+              {token && <ProfileMenu />}
               <Nav.Link onClick={() => router.push("/menu")}>Back to Menu</Nav.Link>
             </Nav>
           </Navbar.Collapse>

@@ -58,8 +58,21 @@ export default function MainMenu() {
   return (
     <div className="main-menu-container">
 
-      {/* ✅ Add the ProfileMenu at the top */}
-      <ProfileMenu />
+      <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm" fixed="top">
+        <Container>
+          <Navbar.Brand className="fw-bold">
+          ⚔️ RPG Online
+          </Navbar.Brand>
+          <Navbar.Toggle aria-controls="basic-navbar-nav" />
+          <Navbar.Collapse id="basic-navbar-nav">
+            <Nav className="ms-auto">
+              {token && (
+                <ProfileMenu />
+              )}
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+      </Navbar>
 
       <div className="menu-card">
         <h1 className="menu-title">Welcome to RPG Online</h1>
