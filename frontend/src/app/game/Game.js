@@ -176,7 +176,7 @@ export default function Game() {
                   <h3>{monsterList[currentMonsterIndex].name} (Level {monsterList[currentMonsterIndex].level})</h3>
 
                   <img
-                    src={`/monster_${monsterList[currentMonsterIndex].id}.png`} 
+                    src={`/Monster/${monsterList[currentMonsterIndex].id}.png`} 
                     style={{ width: "150px", height: "150px", objectFit: "cover", borderRadius: "10px" }}
                   />
 
