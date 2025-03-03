@@ -36,9 +36,10 @@ export default function Admin() {
         if (!response.ok) throw new Error("Failed to fetch user data");
 
         const userData = await response.json();
-        setUserData(userData || "NULL");
+        setUserData(userData);
+        localStorage.setItem("userData", userData);
         setUserCharacters(userData.character);
-        setUserRole(userData.role.name || "NULL");
+        setUserRole(userData.role.name);
         if (userData.role.name !== "Admin") router.push("/menu");
       } catch (error) {
         console.error("Error fetching user role:", error);

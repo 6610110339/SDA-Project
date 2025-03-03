@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Navbar, Nav, Container, Button, Modal, ButtonGroup } from "react-bootstrap";
-import { Avatar, Flex } from 'antd';
+import { Navbar, Nav, Container, Button, Modal } from "react-bootstrap";
+import { Flex } from 'antd';
 
 export default function Game() {
   const router = useRouter();
-  const pathname = usePathname();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
   const [userRole, setUserRole] = useState(null);
@@ -58,9 +57,10 @@ export default function Game() {
         if (!response.ok) throw new Error("Failed to fetch user data");
 
         const userData = await response.json();
-        setUserData(userData || "NULL");
+        setUserData(userData);
+        localStorage.setItem("userData", userData);
         setUserCharacters(userData.character);
-        setUserRole(userData.role.name || "NULL");
+        setUserRole(userData.role.name);
         setCurrentTurn(userData.username);
       } catch (error) {
         console.error("Error fetching user role:", error);
@@ -94,6 +94,8 @@ export default function Game() {
       setShowModalErrorInstance(true);
       return;
     };
+
+    console.log(userData)
 
   }, []);
 
@@ -242,10 +244,14 @@ export default function Game() {
                           ) : (
                             <h3 style={{ fontSize: "24px", color: "black" }}>You Lost!</h3>
                           )}
-                          <div style={{ position: "absolute", bottom: "20px", display: "flex", gap: "15px" }}>
-                            <button className="btn btn-danger" onClick={handleAttack} style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>⚔️ Attack</button>
-                            <button className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>🌀 Skill</button>
-                          </div>
+                          {currentTurn === "userData.username" ? (
+                            <div style={{ position: "absolute", bottom: "20px", display: "flex", gap: "15px" }}>
+                              <button className="btn btn-danger" onClick={handleAttack} style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>⚔️ Attack</button>
+                              <button className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>🌀 Skill</button>
+                            </div>
+                          ) : (
+                            ""
+                          )}
                         </div>
                       </div>
                     </div>
@@ -282,10 +288,6 @@ export default function Game() {
                           ) : (
                             <h3 style={{ fontSize: "24px", color: "black" }}>You Won!</h3>
                           )}
-                          <div style={{ position: "absolute", bottom: "20px", display: "flex", gap: "15px" }}>
-                            <button className="btn btn-danger" onClick={handleAttack} style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>⚔️ Attack</button>
-                            <button className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>🌀 Skill</button>
-                          </div>
                         </div>
                       </div>
                     </div>
@@ -296,9 +298,6 @@ export default function Game() {
               ))}
             </Flex>
           </Flex>
-
-
-
 
         </div>
       </div>
