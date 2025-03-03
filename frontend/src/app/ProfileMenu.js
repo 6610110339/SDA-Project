@@ -21,7 +21,10 @@ export default function ProfileMenu() {
 
     const fetchUserInfo = async (token) => {
         try {
+<<<<<<< HEAD
+=======
             // Step 1: Get basic user info to obtain the user ID
+>>>>>>> 72edd34774b96b34b0960adb1ba69186f9cf7d8d
             const meResponse = await fetch("http://localhost:1337/api/users/me", {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -32,7 +35,6 @@ export default function ProfileMenu() {
 
             const meData = await meResponse.json();
 
-            // Step 2: Get full user info with role populated
             const fullResponse = await fetch(`http://localhost:1337/api/users/${meData.id}?populate=role`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -81,14 +83,7 @@ export default function ProfileMenu() {
     );
 
     return (
-        <div
-            style={{
-                position: "fixed",
-                top: "20px",
-                right: "20px",
-                zIndex: 1050,
-            }}
-        >
+        <div>
             <Popover
                 content={content}
                 title="Profile"
@@ -99,7 +94,7 @@ export default function ProfileMenu() {
                     size="large"
                     icon={<UserOutlined />}
                     style={{
-                        backgroundColor: "#1890ff",
+                        backgroundColor: "rgb(105, 105, 105)",
                         cursor: "pointer",
                     }}
                 />
