@@ -8,10 +8,12 @@ import { Alert } from 'antd';
 export default function Login() {
     const router = useRouter();
     const [username, setUsername] = useState("");
+    const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
     const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [showRegister, setShowRegister] = useState(false);
 
     useEffect(() => {
         const token = localStorage.getItem("authToken");
@@ -22,7 +24,7 @@ export default function Login() {
         }
     }, []);
 
-    const handleSubmit = async (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
         setError("");
         setSuccess("");
@@ -58,6 +60,40 @@ export default function Login() {
         }
     };
 
+    const handleRegister = async (e) => {
+        e.preventDefault();
+        setError("");
+        setSuccess("");
+
+        try {
+            const response = await fetch("http://localhost:1337/api/auth/local/register", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    username: username,
+                    email: email,
+                    password: password,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error.message);
+            }
+
+            setSuccess("Registration successful! You can now log in.");
+            setShowRegister(false);
+            setUsername("");
+            setEmail("");
+            setPassword("");
+        } catch (err) {
+            setError("Registration failed: " + err.message);
+        }
+    };
+
     return (
         <div
             className="d-flex justify-content-center align-items-center vh-100"
@@ -86,18 +122,14 @@ export default function Login() {
                         fontSize: "32px",
                     }}
                 >
-                    🌅 Welcome!
+                    {showRegister ? "📝 Register" : "🌅 Welcome!"}
                 </h2>
 
-                {error && (
-                    <Alert message={error} type="error" showIcon />
-                )}
-                {success && (
-                    <Alert message={success} type="success" showIcon />
-                )}
+                {error && <Alert message={error} type="error" showIcon />}
+                {success && <Alert message={success} type="success" showIcon />}
 
                 {!isLoggedIn && (
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={showRegister ? handleRegister : handleLogin}>
                         <div className="mb-3">
                             <label htmlFor="username" className="form-label">
                                 Username:
@@ -119,6 +151,29 @@ export default function Login() {
                                 }}
                             />
                         </div>
+                        {showRegister && (
+                            <div className="mb-3">
+                                <label htmlFor="email" className="form-label">
+                                    Email:
+                                </label>
+                                <input
+                                    type="email"
+                                    id="email"
+                                    name="email"
+                                    className="form-control"
+                                    placeholder="Enter your email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    required
+                                    style={{
+                                        backgroundColor: "rgba(255, 255, 255, 0.2)",
+                                        border: "none",
+                                        color: "#fff",
+                                        borderRadius: "12px",
+                                    }}
+                                />
+                            </div>
+                        )}
                         <div className="mb-4">
                             <label htmlFor="password" className="form-label">
                                 Password:
@@ -150,12 +205,28 @@ export default function Login() {
                                 borderRadius: "12px",
                             }}
                         >
-                            Login
+                            {showRegister ? "Register" : "Login"}
                         </button>
                     </form>
+                )}
+
+                {!isLoggedIn && (
+                    <div className="text-center mt-3">
+                        <button
+                            className="btn btn-link text-white"
+                            onClick={() => {
+                                setShowRegister(!showRegister);
+                                setError("");
+                                setSuccess("");
+                            }}
+                        >
+                            {showRegister ? "Already have an account? Login" : "Don't have an account? Register"}
+                        </button>
+                    </div>
                 )}
             </main>
         </div>
     );
 }
+
 
