@@ -6,6 +6,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal, ButtonGroup } from "react-bootstrap";
 import { UserOutlined } from '@ant-design/icons';
 import { Avatar, Flex } from 'antd';
+import OrderUI from "@/components/OrderUI";
 
 export default function Game() {
   const router = useRouter();
@@ -198,47 +199,47 @@ export default function Game() {
                 >
                   {i === 0 ? (
                     <div>
-                      
+                      <OrderUI></OrderUI>
                     </div>
                   ) : i === 3 ? (
                     <div>
-                  <div>
-                    <div className="battle-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", height: "100vh", color: "white", textAlign: "center", padding: "20px" }}>
-                      {monsterList.length > 0 && !isEnded ? (
-                        <div style={{ textAlign: "center" }}>
-                          {isDefeated ? (
-                            <h3>Monster Defeated! Prepare for next wave!</h3>
+                      <div>
+                        <div className="battle-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", height: "100vh", color: "white", textAlign: "center", padding: "20px" }}>
+                          {monsterList.length > 0 && !isEnded ? (
+                            <div style={{ textAlign: "center" }}>
+                              {isDefeated ? (
+                                <h3>Monster Defeated! Prepare for next wave!</h3>
+                              ) : (
+                                <>
+                                  <h2>{monsterList[currentMonsterIndex].name} (Lv. {monsterList[currentMonsterIndex].level})</h2>
+                                  <img
+                                    src={`/Monster/${monsterList[currentMonsterIndex].id}.png`}
+                                    style={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px" }}
+                                  />
+                                  <div className="progress" style={{ width: "300px", height: "18px", backgroundColor: "#333", borderRadius: "5px", margin: "10px auto", position: "relative" }}>
+                                    <div className="progress-bar bg-danger"
+                                      style={{
+                                        width: `${(monsterHP / monsterList[currentMonsterIndex]?.health) * 100}%`,
+                                        height: "100%",
+                                        borderRadius: "5px"
+                                      }}>
+                                      <span style={{ fontSize: "14px", position: "absolute", width: "100%", textAlign: "center", fontWeight: "bold" }}>
+                                        {monsterHP} / {monsterList[currentMonsterIndex]?.health}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </div>
                           ) : (
-                            <>
-                              <h2>{monsterList[currentMonsterIndex].name} (Lv. {monsterList[currentMonsterIndex].level})</h2>
-                              <img
-                                src={`/Monster/${monsterList[currentMonsterIndex].id}.png`}
-                                style={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px" }}
-                              />
-                              <div className="progress" style={{ width: "300px", height: "18px", backgroundColor: "#333", borderRadius: "5px", margin: "10px auto", position: "relative" }}>
-                                <div className="progress-bar bg-danger"
-                                  style={{
-                                    width: `${(monsterHP / monsterList[currentMonsterIndex]?.health) * 100}%`,
-                                    height: "100%",
-                                    borderRadius: "5px"
-                                  }}>
-                                  <span style={{ fontSize: "14px", position: "absolute", width: "100%", textAlign: "center", fontWeight: "bold" }}>
-                                    {monsterHP} / {monsterList[currentMonsterIndex]?.health}
-                                  </span>
-                                </div>
-                              </div>
-                            </>
+                            <h3>You Won!</h3>
                           )}
+                          <div style={{ position: "absolute", bottom: "20px", display: "flex", gap: "15px" }}>
+                            <button className="btn btn-danger" onClick={handleAttack} style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>⚔️ Attack</button>
+                            <button className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>🌀 Skill</button>
+                          </div>
                         </div>
-                      ) : (
-                        <h3>You Won!</h3>
-                      )}
-                      <div style={{ position: "absolute", bottom: "20px", display: "flex", gap: "15px" }}>
-                        <button className="btn btn-danger" onClick={handleAttack} style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>⚔️ Attack</button>
-                        <button className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>🌀 Skill</button>
                       </div>
-                    </div>
-                  </div>
                     </div>
                   ) : (
                     ``
