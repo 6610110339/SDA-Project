@@ -39,6 +39,7 @@ export default function MainMenu() {
 
         const userData = await response.json();
         setUserData(userData);
+        localStorage.setItem("userData", JSON.stringify(userData));
         setUserCharacters(userData.character);
         setUserRole(userData.role.name);
       } catch (error) {

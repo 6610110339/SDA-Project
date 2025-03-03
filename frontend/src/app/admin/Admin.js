@@ -37,6 +37,7 @@ export default function Admin() {
 
         const userData = await response.json();
         setUserData(userData);
+        localStorage.setItem("userData", JSON.stringify(userData));
         setUserCharacters(userData.character);
         setUserRole(userData.role.name);
         if (userData.role.name !== "Admin") router.push("/menu");

@@ -45,7 +45,6 @@ export default function ProfileMenu() {
             const fullData = await fullResponse.json();
             setUser(fullData);
             setUserCharacters(fullData.character)
-            console.log(fullData.character)
         } catch (err) {
             console.error("Error loading user:", err);
         } finally {
@@ -55,6 +54,7 @@ export default function ProfileMenu() {
 
     const handleLogout = () => {
         localStorage.removeItem("authToken");
+        localStorage.removeItem("userData");
         router.push("/");
     };
 

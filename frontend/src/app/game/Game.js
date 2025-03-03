@@ -5,6 +5,7 @@ import { useRouter, usePathname } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal } from "react-bootstrap";
 import { Flex } from 'antd';
+import "../globals.css";
 
 export default function Game() {
   const router = useRouter();
@@ -18,13 +19,17 @@ export default function Game() {
   const [stage, setStage] = useState(null);
   const [instanceID, setInstanceID] = useState(null);
 
-  const [currentTurn, setCurrentTurn] = useState(null);
-  const [charactersHP, setCharactersHP] = useState(100);
+  const [currentTurn, setCurrentTurn] = useState("👤 Player");
+  const [charactersDamage, setCharactersDamage] = useState(20);
+  const [charactersHP, setCharactersHP] = useState(20);
+  const [charactersMaxHP, setCharactersMaxHP] = useState(20);
   const [isCharactersDefeated, setIsCharactersDefeated] = useState(false);
   const [monsterList, setMonsterList] = useState([]);
   const [currentMonsterIndex, setCurrentMonsterIndex] = useState(0);
   const [monsterHP, setMonsterHP] = useState(100);
   const [isMonsterDefeated, setIsMonsterDefeated] = useState(false);
+  const [isMonsterHit, setIsMonsterHit] = useState(false);
+  const [isCharacterHit, setIsCharacterHit] = useState(false);
   const [isEnded, setIsEnded] = useState(false);
 
   const baseStyle = {
@@ -58,9 +63,16 @@ export default function Game() {
 
         const userData = await response.json();
         setUserData(userData);
+        localStorage.setItem("userData", JSON.stringify(userData));
         setUserCharacters(userData.character);
         setUserRole(userData.role.name);
-        setCurrentTurn(userData.username);
+
+        /////////////
+        setCharactersDamage((Number(userData.character.Value_Level) * 2) + 1);
+        setCharactersMaxHP((Number(userData.character.Value_Level) * 10) + 5);
+        setCharactersHP((Number(userData.character.Value_Level) * 10) + 5);
+        setIsCharactersDefeated(false);
+        /////////////
       } catch (error) {
         console.error("Error fetching user role:", error);
         setUserRole("NULL");
@@ -94,8 +106,6 @@ export default function Game() {
       return;
     };
 
-    console.log(userData)
-
   }, []);
 
   const handleReturn = async (instanceID) => {
@@ -124,19 +134,25 @@ export default function Game() {
 
       localStorage.removeItem("selectStage");
       localStorage.removeItem("instanceID");
+      localStorage.removeItem("userData");
       router.push("/stagelist");
     } catch (error) {
       console.error("Error removing active stage:", error);
     }
   };
 
-  const handleAttack = () => {
+  const handlePlayerAttack = () => {
     const monster_hurt = new Audio("/sounds/monster_hurt.mp3");
     if (monsterHP >= 0) {
-      setMonsterHP(monsterHP - 2);
+      setMonsterHP(monsterHP - charactersDamage);
+      setIsMonsterHit(true);
+      setTimeout(() => {
+        setIsMonsterHit(false);
+      }, 300);
       monster_hurt.volume = 0.25
       monster_hurt.play()
-      if ((monsterHP - 2) <= 0) {
+      setCurrentTurn("☠️ Monster")
+      if ((monsterHP - charactersDamage) <= 0) {
         setIsMonsterDefeated(true);
         if (currentMonsterIndex < monsterList.length - 1) {
           setTimeout(() => {
@@ -152,6 +168,31 @@ export default function Game() {
           }, 3000);
           return;
         }
+      }
+      setTimeout(() => {
+        handleMonsterAttack();
+      }, 1000)
+    }
+  };
+
+  const handleMonsterAttack = () => {
+    const player_hurt = new Audio("/sounds/player_hurt.mp3");
+    if (charactersHP >= 0) {
+      setCharactersHP(charactersHP - monsterList[currentMonsterIndex].damage);
+      setIsCharacterHit(true);
+      setTimeout(() => {
+        setIsCharacterHit(false);
+      }, 300);
+      player_hurt.volume = 0.25
+      player_hurt.play()
+      setCurrentTurn("👤 Player")
+      if ((charactersHP - monsterList[currentMonsterIndex].damage) <= 0) {
+        setIsCharactersDefeated(true);
+        setIsEnded(true);
+        setTimeout(() => {
+          const instanceID = localStorage.getItem("instanceID");
+          handleReturn(instanceID);
+        }, 3000);
       }
     }
   };
@@ -220,20 +261,21 @@ export default function Game() {
                                 <h3 style={{ fontSize: "24px", color: "black" }}>Character Defeated!</h3>
                               ) : (
                                 <>
-                                  <h2 style={{ fontSize: "24px", color: "black" }}>Your Character (Lv. 1)</h2>
+                                  <h2 style={{ fontSize: "24px", color: "black" }}>Your Character (Lv. {userData?.character.Value_Level ?? "???"})</h2>
                                   <img
+                                    className={isCharacterHit ? "monster-hit" : ""}
                                     src={`/Characters/SwordMan.png`}
                                     style={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px" }}
                                   />
                                   <div className="progress" style={{ width: "300px", height: "18px", backgroundColor: "#333", borderRadius: "5px", margin: "10px auto", position: "relative" }}>
                                     <div className="progress-bar bg-danger"
                                       style={{
-                                        width: `${(charactersHP / 100) * 100}%`,
+                                        width: `${(charactersHP / charactersMaxHP) * 100}%`,
                                         height: "100%",
                                         borderRadius: "5px"
                                       }}>
                                       <span style={{ fontSize: "14px", position: "absolute", width: "100%", textAlign: "center", fontWeight: "bold" }}>
-                                        {charactersHP} / 100
+                                        {charactersHP} / {charactersMaxHP}
                                       </span>
                                     </div>
                                   </div>
@@ -243,14 +285,12 @@ export default function Game() {
                           ) : (
                             <h3 style={{ fontSize: "24px", color: "black" }}>You Lost!</h3>
                           )}
-                          {currentTurn === "userData.username" ? (
+                          {currentTurn === "👤 Player" && !isEnded ? (
                             <div style={{ position: "absolute", bottom: "20px", display: "flex", gap: "15px" }}>
-                              <button className="btn btn-danger" onClick={handleAttack} style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>⚔️ Attack</button>
+                              <button className="btn btn-danger" onClick={() => { handlePlayerAttack() }} style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>⚔️ Attack</button>
                               <button className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>🌀 Skill</button>
                             </div>
-                          ) : (
-                            ""
-                          )}
+                          ) : ("")}
                         </div>
                       </div>
                     </div>
@@ -258,7 +298,7 @@ export default function Game() {
                     <div>
                       <div>
                         <div className="battle-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", height: "100vh", color: "white", textAlign: "center", padding: "20px" }}>
-                          {monsterList.length > 0 && !isEnded ? (
+                          {monsterList.length > 0 && (!isEnded || charactersHP <= 0) ? (
                             <div style={{ textAlign: "center" }}>
                               {isMonsterDefeated ? (
                                 <h3 style={{ fontSize: "24px", color: "black" }}>Monster Defeated! Prepare for next wave!</h3>
@@ -266,6 +306,7 @@ export default function Game() {
                                 <>
                                   <h2 style={{ fontSize: "24px", color: "black" }}>{monsterList[currentMonsterIndex].name} (Lv. {monsterList[currentMonsterIndex].level})</h2>
                                   <img
+                                    className={isMonsterHit ? "monster-hit" : ""}
                                     src={`/Monster/${monsterList[currentMonsterIndex].id}.png`}
                                     style={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px", }}
                                   />
