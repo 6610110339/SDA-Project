@@ -7,19 +7,21 @@ import { useRouter } from "next/navigation";
 
 export default function ProfileMenu() {
     const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
     const router = useRouter();
 
     useEffect(() => {
         const token = localStorage.getItem("authToken");
-
         if (token) {
             fetchUserInfo(token);
+        } else {
+            setLoading(false);
         }
     }, []);
 
     const fetchUserInfo = async (token) => {
         try {
-            // Step 1: Get basic user info
+            // Step 1: Get basic user info to obtain the user ID
             const meResponse = await fetch("http://localhost:1337/api/users/me", {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -42,7 +44,9 @@ export default function ProfileMenu() {
             const fullData = await fullResponse.json();
             setUser(fullData);
         } catch (err) {
-            console.error(err);
+            console.error("Error loading user:", err);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -53,7 +57,9 @@ export default function ProfileMenu() {
 
     const content = (
         <div style={{ minWidth: "200px" }}>
-            {user ? (
+            {loading ? (
+                <p>Loading...</p>
+            ) : user ? (
                 <>
                     <p><strong>Username:</strong> {user.username}</p>
                     <p><strong>Email:</strong> {user.email}</p>
@@ -69,7 +75,7 @@ export default function ProfileMenu() {
                     </Button>
                 </>
             ) : (
-                <p>Loading...</p>
+                <p>User not found</p>
             )}
         </div>
     );
@@ -101,4 +107,3 @@ export default function ProfileMenu() {
         </div>
     );
 }
-
