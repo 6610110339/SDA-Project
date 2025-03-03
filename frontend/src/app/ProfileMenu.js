@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 export default function ProfileMenu() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [userCharacters, setUserCharacters] = useState(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -31,7 +32,7 @@ export default function ProfileMenu() {
 
             const meData = await meResponse.json();
 
-            const fullResponse = await fetch(`http://localhost:1337/api/users/${meData.id}?populate=role`, {
+            const fullResponse = await fetch(`http://localhost:1337/api/users/${meData.id}?populate=*`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -41,6 +42,8 @@ export default function ProfileMenu() {
 
             const fullData = await fullResponse.json();
             setUser(fullData);
+            setUserCharacters(fullData.character)
+            console.log(fullData.character)
         } catch (err) {
             console.error("Error loading user:", err);
         } finally {
@@ -59,10 +62,19 @@ export default function ProfileMenu() {
                 <p>Loading...</p>
             ) : user ? (
                 <>
-                    <p><strong>=== Game Profile ===</strong></p>
-                    <p><strong>Level:</strong> 1</p>
-                    <p><strong>XP:</strong> 26% (263/5889)</p>
-                    <p><strong>Class:</strong> Archer</p>
+                    {userCharacters == null ? (
+                        <>
+                            <p><strong>=== Game Profile ===</strong></p>
+                            <p>Select the Class First!</p>
+                        </>
+                    ) : (
+                        <>
+                            <p><strong>=== Game Profile ===</strong></p>
+                            <p><strong>Level:</strong> {userCharacters.Value_Level}</p>
+                            <p><strong>XP:</strong> {userCharacters.Value_XP}/{(userCharacters.Value_Level * 25)}</p>
+                            <p><strong>Class:</strong> {userCharacters.Class_Name}</p>
+                        </>
+                    )}
                     <p><strong>=== User Profile ===</strong></p>
                     <p><strong>Username:</strong> {user.username}</p>
                     <p><strong>Email:</strong> {user.email}</p>
