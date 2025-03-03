@@ -10,6 +10,7 @@ import { Collapse, Tag, Avatar } from 'antd';
 export default function Admin() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [token, setToken] = useState(null);
   const [stage, setStage] = useState("");
@@ -37,6 +38,7 @@ export default function Admin() {
         if (!response.ok) throw new Error("Failed to fetch user data");
 
         const userData = await response.json();
+        setUserData(userData || "NULL")
         setUserRole(userData.role.name || "NULL");
       } catch (error) {
         console.error("Error fetching user role:", error);

@@ -5,25 +5,16 @@ import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal, ListGroup } from "react-bootstrap";
 import { UserOutlined } from '@ant-design/icons';
-import { Collapse, Tag, Avatar, message } from 'antd';
+import { Collapse, Tag, Avatar } from 'antd';
 
 export default function Admin() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [userData, setUserData] = useState(null);
   const [token, setToken] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedStage, setSelectedStage] = useState(null);
-
-  const [messageApi, contextHolder] = message.useMessage();
-  const success = () => {
-    messageApi.open({
-      type: 'loading',
-      content: 'Loading instance game...',
-      duration: 0,
-    });
-    setTimeout(messageApi.destroy, 1500);
-  };
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -47,6 +38,7 @@ export default function Admin() {
         if (!response.ok) throw new Error("Failed to fetch user data");
 
         const userData = await response.json();
+        setUserData(userData || "NULL")
         setUserRole(userData.role.name || "NULL");
       } catch (error) {
         console.error("Error fetching user role:", error);
@@ -65,11 +57,40 @@ export default function Admin() {
     { key: '5', name: "Stage 5", difficulty: "Hard", color: "#c0392b", level: 12 },
   ];
 
-  const handleAttack = (selectedStage) => {
+  const handleAttack = async (selectedStage) => {
     const generateID = Math.floor(Math.random() * 1000000);
     localStorage.setItem("selectStage", selectedStage);
     localStorage.setItem("instanceID", generateID);
-    router.push(`/game?stage=${selectedStage}&id=${generateID}`);
+
+    const stageData = {
+      stage: selectedStage,
+      instanceID: generateID,
+      userID: userData.id,
+      username: userData.username,
+      email: userData.email,
+      role: userRole
+    };
+
+    try {
+      const response = await fetch("http://localhost:1337/api/active-stage-list", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          data: {
+            JSON: [stageData]
+          }
+        })
+      });
+
+      if (!response.ok) throw new Error("Failed to update active-stage-list in Strapi")
+
+      router.push(`/game?stage=${selectedStage}&id=${generateID}`);
+    } catch (error) {
+      console.error("Error updating active stage:", error);
+    }
   };
 
   return (

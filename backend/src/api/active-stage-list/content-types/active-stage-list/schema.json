@@ -1,0 +1,17 @@
+{
+  "kind": "singleType",
+  "collectionName": "active_stage_lists",
+  "info": {
+    "singularName": "active-stage-list",
+    "pluralName": "active-stage-lists",
+    "displayName": "ActiveStageLists"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "JSON": {
+      "type": "json"
+    }
+  }
+}

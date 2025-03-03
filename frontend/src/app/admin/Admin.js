@@ -10,6 +10,7 @@ import { Collapse, Button, Tag, Avatar } from 'antd';
 export default function Admin() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [token, setToken] = useState(null);
 
@@ -33,6 +34,7 @@ export default function Admin() {
         if (!response.ok) throw new Error("Failed to fetch user data");
 
         const userData = await response.json();
+        setUserData(userData || "NULL")
         setUserRole(userData.role.name || "NULL");
         if (userData.role.name !== "Admin") router.push("/menu");
       } catch (error) {

@@ -9,6 +9,7 @@ import "./menu.css";
 export default function MainMenu() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userData, setUserData] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [showModalLogout, setShowModalLogout] = useState(false);
   const [token, setToken] = useState(null);
@@ -35,6 +36,7 @@ export default function MainMenu() {
         if (!response.ok) throw new Error("Failed to fetch user data");
 
         const userData = await response.json();
+        setUserData(userData || "NULL")
         setUserRole(userData.role.name || "NULL");
       } catch (error) {
         console.error("Error fetching user role:", error);
