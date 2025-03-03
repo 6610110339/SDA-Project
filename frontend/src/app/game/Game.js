@@ -14,10 +14,11 @@ export default function Game() {
   const [userData, setUserData] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [token, setToken] = useState(null);
-  const [stage, setStage] = useState(null);
-  const [instanceID, setInstanceID] = useState(null);
   const [showModalReturn, setShowModalReturn] = useState(false);
   const [showModalErrorInstance, setShowModalErrorInstance] = useState(false);
+  const [stage, setStage] = useState(null);
+  const [instanceID, setInstanceID] = useState(null);
+  const [monsterList, setMonsterList] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -29,6 +30,11 @@ export default function Game() {
     } else {
       setIsLoggedIn(true);
     }
+
+    const selectStage = localStorage.getItem("selectStage");
+    setStage(`Stage ${selectStage}`);
+    const instanceID = localStorage.getItem("instanceID");
+    setInstanceID(instanceID);
 
     const fetchUserRole = async () => {
       try {
@@ -46,13 +52,24 @@ export default function Game() {
         setUserRole("NULL");
       }
     };
+    const fetchMonsterData = async () => {
+      try {
+        const selectStage = localStorage.getItem("selectStage");
+        const response = await fetch(`http://localhost:1337/api/monster-lists?filters[Stage_ID][$eq]=${selectStage}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) throw new Error("Failed to fetch monster data");
 
+        const data = await response.json();
+        setMonsterList(data.data[0].MonsterData);
+        console.log(data.data[0].MonsterData)
+      } catch (error) {
+        console.error("Error fetching monster data:", error);
+      }
+    };
+
+    fetchMonsterData();
     fetchUserRole();
-
-    const selectStage = localStorage.getItem("selectStage");
-    setStage(`Stage ${selectStage}`);
-    const instanceID = localStorage.getItem("instanceID");
-    setInstanceID(instanceID);
 
     if (!selectStage || !instanceID) {
       setShowModalErrorInstance(true);
@@ -120,8 +137,46 @@ export default function Game() {
           backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           backgroundAttachment: "fixed",
-        }}
-      ></div>
+        }}>
+        <div
+          style={{
+            width: "100%",
+            maxWidth: "100%",
+            backgroundColor: "rgba(255, 255, 255, 0.25)",
+            padding: "20px",
+            borderRadius: "1rem",
+          }}>
+          <div>
+
+            {/* แสดงชื่อ Monster และ HP% ทีละตัว */}
+            <div className="monster-list" style={{ color: "white", textAlign: "center" }}>
+              {monsterList.length > 0 ? (
+                monsterList.map((monster, index) => (
+                  <div key={index} style={{ marginBottom: "20px" }}>
+                    <h3>{monster.name} (Level {monster.level})</h3>
+                    <div className="progress" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+                      <div className="progress-bar bg-danger" style={{ width: `${(monster.health / 10) * 100}%` }}>
+                        {((monster.health / 10) * 100).toFixed(0)}%
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <p>Loading monsters...</p>
+              )}
+            </div>
+
+            {/* Turn Order */}
+            <div className="turn-order" style={{ color: "white" }}>Turn Order</div>
+
+            {/* Player Characters */}
+            <div className="player-characters" style={{ color: "white" }}>
+              <div className="character" style={{ color: "white" }}>Player 1</div>
+              <div className="character" style={{ color: "white" }}>Player 2</div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Error Modal */}
       <Modal show={showModalErrorInstance} backdrop="static" keyboard={false} centered>
@@ -151,6 +206,7 @@ export default function Game() {
           </div>
         </Modal.Body>
       </Modal>
+
     </>
   );
 }

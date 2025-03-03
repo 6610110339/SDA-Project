@@ -1,0 +1,26 @@
+{
+  "kind": "collectionType",
+  "collectionName": "monster_lists",
+  "info": {
+    "singularName": "monster-list",
+    "pluralName": "monster-lists",
+    "displayName": "MonsterLists"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "Stage_Name": {
+      "type": "string",
+      "required": true
+    },
+    "MonsterData": {
+      "type": "json",
+      "required": true
+    },
+    "Stage_ID": {
+      "type": "integer",
+      "required": true
+    }
+  }
+}

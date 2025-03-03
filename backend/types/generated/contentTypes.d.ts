@@ -398,6 +398,36 @@ export interface ApiActiveStageListActiveStageList
   };
 }
 
+export interface ApiMonsterListMonsterList extends Struct.CollectionTypeSchema {
+  collectionName: 'monster_lists';
+  info: {
+    displayName: 'MonsterLists';
+    pluralName: 'monster-lists';
+    singularName: 'monster-list';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::monster-list.monster-list'
+    > &
+      Schema.Attribute.Private;
+    MonsterData: Schema.Attribute.JSON & Schema.Attribute.Required;
+    publishedAt: Schema.Attribute.DateTime;
+    Stage_ID: Schema.Attribute.Integer & Schema.Attribute.Required;
+    Stage_Name: Schema.Attribute.String & Schema.Attribute.Required;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+  };
+}
+
 export interface PluginContentReleasesRelease
   extends Struct.CollectionTypeSchema {
   collectionName: 'strapi_releases';
@@ -908,6 +938,7 @@ declare module '@strapi/strapi' {
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
       'api::active-stage-list.active-stage-list': ApiActiveStageListActiveStageList;
+      'api::monster-list.monster-list': ApiMonsterListMonsterList;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;
