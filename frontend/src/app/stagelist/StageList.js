@@ -117,8 +117,10 @@ export default function Admin() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
-              {token && <ProfileMenu />}
               <Nav.Link onClick={() => router.push("/menu")}>Back to Menu</Nav.Link>
+              {token && (
+                <ProfileMenu />
+              )}
             </Nav>
           </Navbar.Collapse>
         </Container>
