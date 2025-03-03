@@ -137,7 +137,7 @@ export default function Game() {
       <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm" fixed="top">
         <Container>
           <Navbar.Brand className="fw-bold">
-            {stage} - #{instanceID}
+            {stage} (#{instanceID}) - Wave: {currentMonsterIndex + 1}/{monsterList.length}
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
@@ -171,46 +171,37 @@ export default function Game() {
           }}>
           <div>
 
-            <div className="monster-list" style={{ color: "white", textAlign: "center" }}>
-              {monsterList.length > 0 ? (
-                <div style={{ marginBottom: "20px" }}>
-
-                  {isEnded ? (
-                    ""
+            <div className="battle-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", height: "100vh", color: "white", textAlign: "center", padding: "20px" }}>
+              {monsterList.length > 0 && !isEnded ? (
+                <div style={{ textAlign: "center" }}>
+                  {isDefeated ? (
+                    <h3>Monster Defeated! Prepare for next wave!</h3>
                   ) : (
-                    isDefeated ? (
-                      ""
-                    ) : (
-                      <>                  <h3>{monsterList[currentMonsterIndex].name} (Level {monsterList[currentMonsterIndex].level})</h3>
-
+                    <>
+                      <h2>{monsterList[currentMonsterIndex].name} (Lv. {monsterList[currentMonsterIndex].level})</h2>
                       <img
                         src={`/Monster/${monsterList[currentMonsterIndex].id}.png`}
-                        style={{ width: "150px", height: "150px", objectFit: "cover", borderRadius: "10px" }}
+                        style={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px" }}
                       />
-    
-                      <div className="progress mt-3" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-                        <div className="progress-bar bg-danger" style={{ width: `${monsterHP}%` }}>
-                          {monsterHP}%
+                      <div className="progress" style={{ width: "300px", height: "18px", backgroundColor: "#333", borderRadius: "5px", margin: "10px auto", position: "relative" }}>
+                        <div className="progress-bar bg-danger" style={{ width: `${monsterHP}%`, height: "100%", borderRadius: "5px" }}>
+                          <span style={{ fontSize: "14px", position: "absolute", width: "100%", textAlign: "center", fontWeight: "bold" }}>{monsterHP}%</span>
                         </div>
                       </div>
-                      <button className="btn btn-danger mt-3" onClick={handleAttack}>🔥 Attack</button>
-                      </>
-                    )
+                    </>
                   )}
                 </div>
               ) : (
-                <p>Loading monsters...</p>
+                <h3>You Won!</h3>
               )}
+              <div style={{ position: "absolute", bottom: "20px", display: "flex", gap: "15px" }}>
+                <button className="btn btn-danger" onClick={handleAttack} style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>⚔️ Attack</button>
+                <button className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>🌀 Skill</button>
+              </div>
             </div>
 
-            {/* Turn Order */}
-            <div className="turn-order" style={{ color: "white" }}>Turn Order</div>
 
-            {/* Player Characters */}
-            <div className="player-characters" style={{ color: "white" }}>
-              <div className="character" style={{ color: "white" }}>Player 1</div>
-              <div className="character" style={{ color: "white" }}>Player 2</div>
-            </div>
+
           </div>
         </div>
       </div>
