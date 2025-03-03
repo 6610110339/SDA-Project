@@ -20,6 +20,33 @@ export default function Game() {
   const [stage, setStage] = useState(null);
   const [instanceID, setInstanceID] = useState(null);
 
+  const [userCharacters, setUserCharacters] = useState([{
+    "id": 1,
+    "name": "Warrior",
+    "level": 10,
+    "health": 500,
+    "attack": 50,
+    "defense": 30,
+    "image": "/Characters/WARRIOR.png"
+  },
+  {
+    "id": 2,
+    "name": "Mage",
+    "level": 8,
+    "health": 300,
+    "attack": 80,
+    "defense": 20,
+    "image": "/Characters/MAGE.png"
+  },
+  {
+    "id": 3,
+    "name": "Archer",
+    "level": 9,
+    "health": 350,
+    "attack": 60,
+    "defense": 25,
+    "image": "/Characters/ARCHER.png"
+  }]);
   const [monsterList, setMonsterList] = useState([]);
   const [currentMonsterIndex, setCurrentMonsterIndex] = useState(0);
   const [monsterHP, setMonsterHP] = useState(100);
@@ -198,7 +225,7 @@ export default function Game() {
                 >
                   {i === 0 ? (
                     <div>
-                      <OrderUI></OrderUI>
+                      <OrderUI characters={userCharacters} monsters={monsterList} />
                     </div>
                   ) : i === 3 ? (
                     <div>
