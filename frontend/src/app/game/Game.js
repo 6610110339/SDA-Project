@@ -13,9 +13,10 @@ export default function Game() {
   const [userData, setUserData] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [token, setToken] = useState(null);
-  const [stage, setStage] = useState("");
-  const [instanceID, setInstanceID] = useState("");
+  const [stage, setStage] = useState(null);
+  const [instanceID, setInstanceID] = useState(null);
   const [showModalReturn, setShowModalReturn] = useState(false);
+  const [showModalErrorInstance, setShowModalErrorInstance] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -53,6 +54,11 @@ export default function Game() {
     setStage(`Stage: ${selectStage}`);
     const instanceID = localStorage.getItem("instanceID");
     setInstanceID(instanceID);
+
+    if (selectStage == null && instanceID == null) {
+      setShowModalErrorInstance(true);
+      return
+    };
 
   }, []);
 
@@ -94,6 +100,10 @@ export default function Game() {
     }
   };
 
+  const handleForceReturn = () => {
+    router.push("/stagelist")
+  };
+
   return (
     <>
       <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm">
@@ -131,6 +141,18 @@ export default function Game() {
         }}
       >
       </div>
+
+      {/* Error Modal */}
+      <Modal show={showModalErrorInstance} onHide={() => setShowModalErrorInstance(false)} centered>
+        <Modal.Header>
+          <Modal.Title>Unknown Instance</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="d-flex gap-2">
+            <Button className="w-100" variant="primary" onClick={() => handleForceReturn()}>Return</Button>
+          </div>
+        </Modal.Body>
+      </Modal>
 
       {/* Return Modal */}
       <Modal show={showModalReturn} onHide={() => setShowModalReturn(false)} centered>
