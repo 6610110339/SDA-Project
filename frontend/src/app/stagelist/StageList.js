@@ -31,7 +31,7 @@ export default function Admin() {
 
     const fetchUserRole = async () => {
       try {
-        const response = await fetch("http://localhost:1337/api/users/me?populate=role", {
+        const response = await fetch("http://localhost:1337/api/users/me?populate=*", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -41,7 +41,6 @@ export default function Admin() {
 
         const userData = await response.json();
         setUserData(userData);
-        localStorage.setItem("userData", userData);
         setUserCharacters(userData.character);
         setUserRole(userData.role.name);
       } catch (error) {

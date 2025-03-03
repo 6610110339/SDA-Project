@@ -55,7 +55,6 @@ export default function ProfileMenu() {
 
     const handleLogout = () => {
         localStorage.removeItem("authToken");
-        localStorage.removeItem("userData");
         router.push("/");
     };
 

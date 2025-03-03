@@ -50,7 +50,7 @@ export default function Game() {
 
     const fetchUserRole = async () => {
       try {
-        const response = await fetch("http://localhost:1337/api/users/me?populate=role", {
+        const response = await fetch("http://localhost:1337/api/users/me?populate=*", {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -58,7 +58,6 @@ export default function Game() {
 
         const userData = await response.json();
         setUserData(userData);
-        localStorage.setItem("userData", userData);
         setUserCharacters(userData.character);
         setUserRole(userData.role.name);
         setCurrentTurn(userData.username);
