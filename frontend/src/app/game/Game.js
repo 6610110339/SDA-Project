@@ -66,7 +66,12 @@ export default function Game() {
         if (!response.ok) throw new Error("Failed to fetch monster data");
 
         const data = await response.json();
-        setMonsterList(data.data[0].MonsterData);
+        const monsters = data.data[0].MonsterData;
+
+        setMonsterList(monsters);
+        if (monsters.length > 0) {
+          setMonsterHP(monsters[0].health);
+        }
       } catch (error) {
         console.error("Error fetching monster data:", error);
       }
@@ -115,18 +120,21 @@ export default function Game() {
   };
 
   const handleAttack = () => {
-    if (monsterHP >= 10) {
-      setMonsterHP(monsterHP - 10);
-      if ((monsterHP - 10) <= 0) {
+    if (monsterHP >= 2) {
+      setMonsterHP(monsterHP - 2);
+      if ((monsterHP - 2) <= 0) {
         setIsDefeated(true);
         if (currentMonsterIndex < monsterList.length - 1) {
           setTimeout(() => {
             setIsDefeated(false);
             setCurrentMonsterIndex(currentMonsterIndex + 1);
-            setMonsterHP(100);
+            setMonsterHP(monsterList[currentMonsterIndex + 1].health);
           }, 1000);
         } else {
           setIsEnded(true);
+          const instanceID = localStorage.getItem("instanceID");
+          handleReturn(instanceID);
+          return
         }
       }
     }
@@ -184,8 +192,15 @@ export default function Game() {
                         style={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px" }}
                       />
                       <div className="progress" style={{ width: "300px", height: "18px", backgroundColor: "#333", borderRadius: "5px", margin: "10px auto", position: "relative" }}>
-                        <div className="progress-bar bg-danger" style={{ width: `${monsterHP}%`, height: "100%", borderRadius: "5px" }}>
-                          <span style={{ fontSize: "14px", position: "absolute", width: "100%", textAlign: "center", fontWeight: "bold" }}>{monsterHP}%</span>
+                        <div className="progress-bar bg-danger"
+                          style={{
+                            width: `${(monsterHP / monsterList[currentMonsterIndex]?.health) * 100}%`,
+                            height: "100%",
+                            borderRadius: "5px"
+                          }}>
+                          <span style={{ fontSize: "14px", position: "absolute", width: "100%", textAlign: "center", fontWeight: "bold" }}>
+                            {monsterHP} / {monsterList[currentMonsterIndex]?.health}
+                          </span>
                         </div>
                       </div>
                     </>
