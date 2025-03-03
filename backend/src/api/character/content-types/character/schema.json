@@ -4,7 +4,8 @@
   "info": {
     "singularName": "character",
     "pluralName": "characters",
-    "displayName": "Characters"
+    "displayName": "Characters",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -20,25 +21,26 @@
       "required": true,
       "default": "SwordMan"
     },
-    "Class_XP": {
-      "type": "integer",
-      "required": true,
-      "default": 0
-    },
-    "Class_Level": {
+    "Value_Level": {
       "type": "integer",
       "default": 1,
       "required": true
     },
-    "Coins": {
+    "Value_XP": {
       "type": "integer",
       "default": 0,
       "required": true
     },
+    "Value_Coins": {
+      "type": "integer",
+      "required": true,
+      "default": 0
+    },
     "owner": {
       "type": "relation",
       "relation": "oneToOne",
-      "target": "admin::user"
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "character"
     }
   }
 }

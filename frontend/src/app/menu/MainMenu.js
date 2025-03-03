@@ -14,6 +14,7 @@ export default function MainMenu() {
   const [userRole, setUserRole] = useState(null);
   const [showModalLogout, setShowModalLogout] = useState(false);
   const [token, setToken] = useState(null);
+  const [userCharacters, setUserCharacters] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");

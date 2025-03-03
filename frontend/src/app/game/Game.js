@@ -13,13 +13,13 @@ export default function Game() {
   const [userData, setUserData] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [token, setToken] = useState(null);
+  const [userCharacters, setUserCharacters] = useState(null);
   const [showModalReturn, setShowModalReturn] = useState(false);
   const [showModalErrorInstance, setShowModalErrorInstance] = useState(false);
   const [stage, setStage] = useState(null);
   const [instanceID, setInstanceID] = useState(null);
 
   const [currentTurn, setCurrentTurn] = useState(null);
-  const [userCharacters, setUserCharacters] = useState([]);
   const [charactersHP, setCharactersHP] = useState(100);
   const [isCharactersDefeated, setIsCharactersDefeated] = useState(false);
   const [monsterList, setMonsterList] = useState([]);

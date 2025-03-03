@@ -401,6 +401,7 @@ export interface ApiActiveStageListActiveStageList
 export interface ApiCharacterCharacter extends Struct.CollectionTypeSchema {
   collectionName: 'characters';
   info: {
+    description: '';
     displayName: 'Characters';
     pluralName: 'characters';
     singularName: 'character';
@@ -409,18 +410,9 @@ export interface ApiCharacterCharacter extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    Class_Level: Schema.Attribute.Integer &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<1>;
     Class_Name: Schema.Attribute.Enumeration<['SwordMan', 'Wizard', 'Archer']> &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'SwordMan'>;
-    Class_XP: Schema.Attribute.Integer &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<0>;
-    Coins: Schema.Attribute.Integer &
-      Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<0>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -430,11 +422,23 @@ export interface ApiCharacterCharacter extends Struct.CollectionTypeSchema {
       'api::character.character'
     > &
       Schema.Attribute.Private;
-    owner: Schema.Attribute.Relation<'oneToOne', 'admin::user'>;
+    owner: Schema.Attribute.Relation<
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
     publishedAt: Schema.Attribute.DateTime;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    Value_Coins: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<0>;
+    Value_Level: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<1>;
+    Value_XP: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<0>;
   };
 }
 
@@ -927,6 +931,10 @@ export interface PluginUsersPermissionsUser
   };
   attributes: {
     blocked: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    character: Schema.Attribute.Relation<
+      'oneToOne',
+      'api::character.character'
+    >;
     confirmationToken: Schema.Attribute.String & Schema.Attribute.Private;
     confirmed: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
     createdAt: Schema.Attribute.DateTime;

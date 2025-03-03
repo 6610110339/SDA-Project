@@ -14,6 +14,7 @@ export default function Admin() {
   const [userData, setUserData] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [token, setToken] = useState(null);
+  const [userCharacters, setUserCharacters] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");

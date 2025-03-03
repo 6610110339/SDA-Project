@@ -14,6 +14,7 @@ export default function Admin() {
   const [userRole, setUserRole] = useState(null);
   const [userData, setUserData] = useState(null);
   const [token, setToken] = useState(null);
+  const [userCharacters, setUserCharacters] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedStage, setSelectedStage] = useState(null);
 
