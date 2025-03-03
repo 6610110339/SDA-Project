@@ -205,7 +205,7 @@ export default function Game() {
           style={{
             width: "100%",
             maxWidth: "100%",
-            backgroundColor: "rgba(255, 255, 255, 0.25)",
+            backgroundColor: "rgba(255, 255, 255, 0.5)",
             padding: "20px",
             borderRadius: "1rem",
           }}>
@@ -225,7 +225,7 @@ export default function Game() {
                 >
                   {i === 0 ? (
                     <div>
-                      <OrderUI characters={userCharacters} monsters={monsterList} />
+                      <OrderUI userCharacters={userCharacters} waveMonsters={monsterList} />
                     </div>
                   ) : i === 3 ? (
                     <div>

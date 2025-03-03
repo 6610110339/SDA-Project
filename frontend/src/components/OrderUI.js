@@ -1,21 +1,28 @@
-import React from "react";
-
-export default function OrderUI({ characters, monsters }) {
-  // รวมตัวละครของผู้เล่นและมอนสเตอร์ แล้วเรียงลำดับ
-  const allEntities = [...characters, ...monsters].sort((a, b) => {
-    // ถ้า a เป็นตัวละครของผู้เล่น ให้มาก่อน (playerCharacter = true)
-    if (a.playerCharacter && !b.playerCharacter) return -1;
-    if (!a.playerCharacter && b.playerCharacter) return 1;
-    return 0;
-  });
-
-  return (
-    <div>
-      {allEntities.map((entity, index) => (
-        <div key={index} style={{ padding: "10px", borderBottom: "1px solid #ccc" }}>
-          <strong>{entity.name}</strong> (HP: {entity.hp})
-        </div>
-      ))}
-    </div>
-  );
-}
+export default function OrderUI({ userCharacters, waveMonsters }) {
+    const waveMonster = waveMonsters.length > 0 ? waveMonsters[0] : null;
+  
+    return (
+      <div>
+        <h2>🔹 Your Characters</h2>
+        <ul>
+          {userCharacters.map((char) => (
+            <li key={char.id}>
+              <img src={char.image} alt={char.name} width={50} />
+              {char.name} (Lv.{char.level}) - HP: {char.health}
+            </li>
+          ))}
+        </ul>
+  
+        <h2>⚔️ Wave Monster</h2>
+        {waveMonster ? (
+          <div>
+            <img src={waveMonster.image} alt={waveMonster.name} width={50} />
+            {waveMonster.name} (Lv.{waveMonster.level}) - HP: {waveMonster.health}
+          </div>
+        ) : (
+          <p>No monsters in this wave.</p>
+        )}
+      </div>
+    );
+  }
+  
