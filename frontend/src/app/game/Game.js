@@ -156,7 +156,6 @@ export default function Game() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
-              {token && <Avatar size={40} style={{ color: "white" }} icon={<UserOutlined />} />}
               <Nav.Link onClick={() => setShowModalReturn(true)}>Return to Menu</Nav.Link>
             </Nav>
           </Navbar.Collapse>

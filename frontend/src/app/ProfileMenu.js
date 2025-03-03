@@ -21,10 +21,6 @@ export default function ProfileMenu() {
 
     const fetchUserInfo = async (token) => {
         try {
-<<<<<<< HEAD
-=======
-            // Step 1: Get basic user info to obtain the user ID
->>>>>>> 72edd34774b96b34b0960adb1ba69186f9cf7d8d
             const meResponse = await fetch("http://localhost:1337/api/users/me", {
                 headers: {
                     Authorization: `Bearer ${token}`,
