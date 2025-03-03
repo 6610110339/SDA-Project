@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Navbar, Nav, Container, Button, Modal, ListGroup } from "react-bootstrap";
+import { Navbar, Nav, Container, Button, Modal } from "react-bootstrap";
 import { UserOutlined } from '@ant-design/icons';
-import { Collapse, Tag, Avatar } from 'antd';
+import { Avatar } from 'antd';
 
 export default function Game() {
   const router = useRouter();
+  const pathname = usePathname();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
   const [userRole, setUserRole] = useState(null);
@@ -32,15 +33,13 @@ export default function Game() {
     const fetchUserRole = async () => {
       try {
         const response = await fetch("http://localhost:1337/api/users/me?populate=role", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
 
         if (!response.ok) throw new Error("Failed to fetch user data");
 
         const userData = await response.json();
-        setUserData(userData || "NULL")
+        setUserData(userData || "NULL");
         setUserRole(userData.role.name || "NULL");
       } catch (error) {
         console.error("Error fetching user role:", error);
@@ -51,23 +50,20 @@ export default function Game() {
     fetchUserRole();
 
     const selectStage = localStorage.getItem("selectStage");
-    setStage(`Stage: ${selectStage}`);
+    setStage(`Stage ${selectStage}`);
     const instanceID = localStorage.getItem("instanceID");
     setInstanceID(instanceID);
 
-    if (selectStage == null && instanceID == null) {
+    if (!selectStage || !instanceID) {
       setShowModalErrorInstance(true);
-      return
-    };
+    }
 
   }, []);
 
   const handleReturn = async (instanceID) => {
     try {
       const fetchResponse = await fetch("http://localhost:1337/api/active-stage-list", {
-        headers: {
-          "Authorization": `Bearer ${token}`
-        }
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       if (!fetchResponse.ok) throw new Error("Failed to fetch existing data");
@@ -81,47 +77,33 @@ export default function Game() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({
-          data: {
-            JSON: updatedJSON
-          }
-        })
+        body: JSON.stringify({ data: { JSON: updatedJSON } }),
       });
 
       if (!updateResponse.ok) throw new Error("Failed to update active-stage-list in Strapi");
 
       localStorage.removeItem("selectStage");
       localStorage.removeItem("instanceID");
-      router.push("/stagelist")
+      router.push("/stagelist");
     } catch (error) {
       console.error("Error removing active stage:", error);
     }
   };
 
-  const handleForceReturn = () => {
-    router.push("/stagelist")
-  };
-
   return (
     <>
-      <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm">
+      <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm" fixed="top">
         <Container>
           <Navbar.Brand className="fw-bold">
-            {stage} - ID: {instanceID}
+            {stage} - #{instanceID}
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
-              {
-                token ? (<Avatar
-                  size={40}
-                  style={{ color: "white" }}
-                  icon={<UserOutlined />}></Avatar>) : ("")}
-              <Nav.Link onClick={() => {
-                setShowModalReturn(true);
-              }}>Return to Menu</Nav.Link>
+              {token && <Avatar size={40} style={{ color: "white" }} icon={<UserOutlined />} />}
+              <Nav.Link onClick={() => setShowModalReturn(true)}>Return to Menu</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -131,7 +113,7 @@ export default function Game() {
         style={{
           display: "flex",
           justifyContent: "center",
-          padding: "40px 20px",
+          padding: "80px 20px",
           minHeight: "100vh",
           backgroundImage: "url('/bg_forest.png')",
           backgroundSize: "cover",
@@ -139,18 +121,17 @@ export default function Game() {
           backgroundRepeat: "no-repeat",
           backgroundAttachment: "fixed",
         }}
-      >
-      </div>
+      ></div>
 
       {/* Error Modal */}
-      <Modal show={showModalErrorInstance} onHide={() => setShowModalErrorInstance(false)} centered>
+      <Modal show={showModalErrorInstance} backdrop="static" keyboard={false} centered>
         <Modal.Header>
           <Modal.Title>Unknown Instance</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <div className="d-flex gap-2">
-            <Button className="w-100" variant="primary" onClick={() => handleForceReturn()}>Return</Button>
-          </div>
+          <Button className="w-100" variant="primary" onClick={() => router.push("/stagelist")}>
+            Return
+          </Button>
         </Modal.Body>
       </Modal>
 
@@ -161,8 +142,12 @@ export default function Game() {
         </Modal.Header>
         <Modal.Body>
           <div className="d-flex gap-2">
-            <Button className="w-50" variant="secondary" onClick={() => setShowModalReturn(false)}>Cancel</Button>
-            <Button className="w-50" variant="danger" onClick={() => handleReturn(instanceID)}>Return</Button>
+            <Button className="w-50" variant="secondary" onClick={() => setShowModalReturn(false)}>
+              Cancel
+            </Button>
+            <Button className="w-50" variant="danger" onClick={() => handleReturn(instanceID)}>
+              Return
+            </Button>
           </div>
         </Modal.Body>
       </Modal>

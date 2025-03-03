@@ -108,7 +108,7 @@ export default function Admin() {
 
   return (
     <>
-      <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm">
+      <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm" fixed="top">
         <Container>
           <Navbar.Brand className="fw-bold">
             ⚔️ RPG Online - Stage List
@@ -123,7 +123,7 @@ export default function Admin() {
         </Container>
       </Navbar>
 
-      <div style={{ display: "flex", justifyContent: "center", padding: "40px 20px", minHeight: "100vh", backgroundImage: "url('/bg_stagelist.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundAttachment: "fixed" }}>
+      <div style={{ display: "flex", justifyContent: "center", padding: "80px 20px", minHeight: "100vh", backgroundImage: "url('/bg_stagelist.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundAttachment: "fixed" }}>
         <div style={{ width: "100%", maxWidth: "700px", backgroundColor: "rgba(255, 255, 255, 0.9)", padding: "20px", borderRadius: "1rem" }}>
           <ListGroup className="shadow-lg rounded-4 overflow-hidden">
             <ListGroup.Item className="bg-primary text-white fw-bold fs-5">🌳 Map 1 - Forest</ListGroup.Item>

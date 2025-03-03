@@ -49,7 +49,7 @@ export default function Admin() {
 
   return (
     <>
-      <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm">
+      <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm" fixed="top">
         <Container>
           <Navbar.Brand className="fw-bold">
             🛠️ RPG Online - Admin Panel
@@ -74,7 +74,7 @@ export default function Admin() {
         style={{
           display: "flex",
           justifyContent: "center",
-          padding: "40px 20px",
+          padding: "80px 20px",
           minHeight: "100vh",
           backgroundImage: "url('/admin_bg.png')",
           backgroundSize: "cover",
