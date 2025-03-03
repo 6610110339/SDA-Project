@@ -37,6 +37,7 @@ export default function Admin() {
 
         const userData = await response.json();
         setUserData(userData || "NULL");
+        setUserCharacters(userData.character);
         setUserRole(userData.role.name || "NULL");
         if (userData.role.name !== "Admin") router.push("/menu");
       } catch (error) {

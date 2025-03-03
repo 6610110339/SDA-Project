@@ -3,12 +3,14 @@
 import { useEffect, useState } from "react";
 import { Popover, Avatar, Button } from "antd";
 import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
+import { Modal } from "react-bootstrap";
 import { useRouter } from "next/navigation";
 
 export default function ProfileMenu() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [userCharacters, setUserCharacters] = useState(null);
+    const [showModalLogout, setShowModalLogout] = useState(false);
     const router = useRouter();
 
     useEffect(() => {
@@ -83,7 +85,7 @@ export default function ProfileMenu() {
                         type="primary"
                         danger
                         icon={<LogoutOutlined />}
-                        onClick={handleLogout}
+                        onClick={() => { setShowModalLogout(true) }}
                         block
                     >
                         Logout
@@ -112,6 +114,18 @@ export default function ProfileMenu() {
                     }}
                 />
             </Popover>
+            {/* Logout Modal */}
+            <Modal show={showModalLogout} onHide={() => setShowModalLogout(false)} centered>
+                <Modal.Header>
+                    <Modal.Title>Are you sure?</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="d-flex gap-2">
+                        <Button className="w-50" variant="secondary" onClick={() => setShowModalLogout(false)}>Cancel</Button>
+                        <Button className="w-50" danger type="primary" onClick={() => handleLogout()}>Logout</Button>
+                    </div>
+                </Modal.Body>
+            </Modal>
         </div>
     );
 }

@@ -38,7 +38,8 @@ export default function MainMenu() {
         if (!response.ok) throw new Error("Failed to fetch user data");
 
         const userData = await response.json();
-        setUserData(userData || "NULL")
+        setUserData(userData || "NULL");
+        setUserCharacters(userData.character);
         setUserRole(userData.role.name || "NULL");
       } catch (error) {
         console.error("Error fetching user role:", error);
@@ -62,7 +63,7 @@ export default function MainMenu() {
       <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm" fixed="top">
         <Container>
           <Navbar.Brand className="fw-bold">
-          ⚔️ RPG Online
+            ⚔️ RPG Online
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
@@ -96,16 +97,21 @@ export default function MainMenu() {
               Admin Panel
             </Button>
           )}
-          <Button
-            variant="danger"
-            size="lg"
-            onClick={() => setShowModalLogout(true)}
-            className="mb-3 fw-bold"
-          >
-            Logout
-          </Button>
         </div>
       </div>
+
+      {/* Force Class Modal */}
+      <Modal show={showModalLogout} onHide={() => setShowModalLogout(false)} centered>
+        <Modal.Header>
+          <Modal.Title>Are you sure?</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="d-flex gap-2">
+            <Button className="w-50" variant="secondary" onClick={() => setShowModalLogout(false)}>Cancel</Button>
+            <Button className="w-50" variant="danger" onClick={() => buttonLogout()}>Logout</Button>
+          </div>
+        </Modal.Body>
+      </Modal>
 
       {/* Logout Modal */}
       <Modal show={showModalLogout} onHide={() => setShowModalLogout(false)} centered>

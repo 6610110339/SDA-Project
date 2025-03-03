@@ -59,6 +59,7 @@ export default function Game() {
 
         const userData = await response.json();
         setUserData(userData || "NULL");
+        setUserCharacters(userData.character);
         setUserRole(userData.role.name || "NULL");
         setCurrentTurn(userData.username);
       } catch (error) {
