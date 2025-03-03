@@ -11,9 +11,11 @@ export default function MainMenu() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
   const [showModalLogout, setShowModalLogout] = useState(false);
+  const [token, setToken] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
+    setToken(token);
     if (!token) {
       router.push("/login");
       localStorage.removeItem("authToken");

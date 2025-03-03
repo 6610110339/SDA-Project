@@ -1,0 +1,32 @@
+.main-menu-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-image: url("/bg_login_night.png");
+    background-size: cover;
+    background-position: center;
+  }
+  
+  .menu-card {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 30px;
+    border-radius: 10px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  }
+  
+  .menu-title {
+    color: #fff;
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .menu-buttons button {
+    width: 100%;
+    margin: 10px 0;
+    padding: 12px;
+    font-size: 18px;
+  }
+  

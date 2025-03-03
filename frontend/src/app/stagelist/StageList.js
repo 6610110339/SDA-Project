@@ -3,44 +3,31 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Navbar, Nav, Container, Modal, ListGroup, Spinner } from "react-bootstrap";
-import { Collapse, Button, Tag } from 'antd';
+import { Navbar, Nav, Container, Button, Modal, ListGroup } from "react-bootstrap";
+import { UserOutlined } from '@ant-design/icons';
+import { Collapse, Tag, Avatar, message } from 'antd';
 
 export default function Admin() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userRole, setUserRole] = useState(null);
+  const [token, setToken] = useState(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedStage, setSelectedStage] = useState(null);
 
-  const StageLists_Town = [
-    {
-      key: '1',
-      label: <div><p>Stage 1</p><Tag color="#008000">Easy</Tag></div>,
-      children: <p><Button type="primary">GG</Button></p>,
-    },
-    {
-      key: '2',
-      label: <div><p>Stage 2</p><Tag color="#008000">Easy</Tag></div>,
-      children: <p><Button type="primary">GG</Button></p>,
-    },
-    {
-      key: '3',
-      label: <div><p>Stage 3</p><Tag color="#f5b041">Normal</Tag></div>,
-      children: <p><Button type="primary">GG</Button></p>,
-    },
-    {
-      key: '4',
-      label: <div><p>Stage 4</p><Tag color="#f5b041">Normal</Tag></div>,
-      children: <p><Button type="primary">GG</Button></p>,
-    },
-    {
-      key: '5',
-      label: <div><p>Stage 5</p><Tag color="#c0392b">Hard</Tag></div>,
-      children: <p><Button type="primary">GG</Button></p>,
-    },
-  ];
+  const [messageApi, contextHolder] = message.useMessage();
+  const success = () => {
+    messageApi.open({
+      type: 'loading',
+      content: 'Loading instance game...',
+      duration: 0,
+    });
+    setTimeout(messageApi.destroy, 1500);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
+    setToken(token);
     if (!token) {
       router.push("/login");
       localStorage.removeItem("authToken");
@@ -70,6 +57,21 @@ export default function Admin() {
     fetchUserRole();
   }, []);
 
+  const stages = [
+    { key: '1', name: "Stage 1", difficulty: "Easy", color: "#008000", level: 0 },
+    { key: '2', name: "Stage 2", difficulty: "Easy", color: "#008000", level: 2 },
+    { key: '3', name: "Stage 3", difficulty: "Normal", color: "#f5b041", level: 5 },
+    { key: '4', name: "Stage 4", difficulty: "Normal", color: "#f5b041", level: 8 },
+    { key: '5', name: "Stage 5", difficulty: "Hard", color: "#c0392b", level: 12 },
+  ];
+
+  const handleAttack = (selectedStage) => {
+    const generateID = Math.floor(Math.random() * 1000000);
+    localStorage.setItem("selectStage", selectedStage);
+    localStorage.setItem("instanceID", generateID);
+    router.push(`/game?stage=${selectedStage}&id=${generateID}`);
+  };
+
   return (
     <>
       <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm">
@@ -80,53 +82,40 @@ export default function Admin() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
-              <Nav.Link onClick={() => {
-                router.push("/menu")
-              }}>Back to Menu</Nav.Link>
+              {token && <Avatar size={40} style={{ color: "white" }} icon={<UserOutlined />} />}
+              <Nav.Link onClick={() => router.push("/menu")}>Back to Menu</Nav.Link>
             </Nav>
           </Navbar.Collapse>
         </Container>
       </Navbar>
 
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "center",
-          padding: "40px 20px",
-          minHeight: "100vh",
-          backgroundImage: "url('/bg_stagelist.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          backgroundAttachment: "fixed",
-        }}
-      >
-        <div
-          style={{
-            width: "100%",
-            maxWidth: "700px",
-            backgroundColor: "rgba(255, 255, 255, 0.9)",
-            padding: "20px",
-            borderRadius: "1rem",
-          }}
-        >
+      <div style={{ display: "flex", justifyContent: "center", padding: "40px 20px", minHeight: "100vh", backgroundImage: "url('/bg_stagelist.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundAttachment: "fixed" }}>
+        <div style={{ width: "100%", maxWidth: "700px", backgroundColor: "rgba(255, 255, 255, 0.9)", padding: "20px", borderRadius: "1rem" }}>
           <ListGroup className="shadow-lg rounded-4 overflow-hidden">
-            <ListGroup.Item className="bg-primary text-white fw-bold fs-5">
-              🏢 Map 1 - Town
-            </ListGroup.Item>
-            <Collapse items={StageLists_Town} />
-            <ListGroup.Item className="bg-secondary text-white fw-bold fs-5">
-              -
-            </ListGroup.Item>
-            <ListGroup.Item className="bg-secondary text-white fw-bold fs-5">
-              -
-            </ListGroup.Item>
-            <ListGroup.Item className="bg-secondary text-white fw-bold fs-5">
-              -
-            </ListGroup.Item>
+            <ListGroup.Item className="bg-primary text-white fw-bold fs-5">🌳 Map 1 - Forest</ListGroup.Item>
+            <Collapse items={stages.map(stage => ({
+              key: stage.key,
+              label: <div><p>{stage.name}</p><Tag color={stage.color}>{stage.difficulty}</Tag></div>,
+              children: <>
+                <p>Recommend Level: {stage.level}</p>
+                <button type="button" className="btn btn-outline-danger" onClick={() => { setSelectedStage(stage); setModalOpen(true); }}>Attack</button>
+              </>
+            }))} />
           </ListGroup>
         </div>
       </div>
+
+      <Modal show={modalOpen} onHide={() => setModalOpen(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Attack {selectedStage?.name}?</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Recommend Level: {selectedStage?.level}
+          <div>
+            <button type="button" className="btn btn-outline-danger" onClick={() => { handleAttack(selectedStage?.key) }}>Attack</button>
+          </div>
+        </Modal.Body>
+      </Modal>
     </>
   );
 }
