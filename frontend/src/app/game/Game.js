@@ -1,13 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal, ListGroup } from "react-bootstrap";
 import { UserOutlined } from '@ant-design/icons';
 import { Collapse, Tag, Avatar } from 'antd';
 
-export default function Admin() {
+export default function Game() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userData, setUserData] = useState(null);
@@ -15,6 +15,7 @@ export default function Admin() {
   const [token, setToken] = useState(null);
   const [stage, setStage] = useState("");
   const [instanceID, setInstanceID] = useState("");
+  const [showModalReturn, setShowModalReturn] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -52,12 +53,45 @@ export default function Admin() {
     setStage(`Stage: ${selectStage}`);
     const instanceID = localStorage.getItem("instanceID");
     setInstanceID(instanceID);
+
   }, []);
 
-  const handleReturn = () => {
-    localStorage.removeItem("selectStage");
-    localStorage.removeItem("instanceID");
-    router.push("/menu")
+  const handleReturn = async (instanceID) => {
+    try {
+      const fetchResponse = await fetch("http://localhost:1337/api/active-stage-list", {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!fetchResponse.ok) throw new Error("Failed to fetch existing data");
+
+      const existingData = await fetchResponse.json();
+      let updatedJSON = existingData.data.JSON || [];
+
+      updatedJSON = updatedJSON.filter(stage => stage.instanceID != instanceID);
+
+      const updateResponse = await fetch("http://localhost:1337/api/active-stage-list", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          data: {
+            JSON: updatedJSON
+          }
+        })
+      });
+
+      if (!updateResponse.ok) throw new Error("Failed to update active-stage-list in Strapi");
+
+      localStorage.removeItem("selectStage");
+      localStorage.removeItem("instanceID");
+      router.push("/stagelist")
+    } catch (error) {
+      console.error("Error removing active stage:", error);
+    }
   };
 
   return (
@@ -65,7 +99,7 @@ export default function Admin() {
       <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm">
         <Container>
           <Navbar.Brand className="fw-bold">
-          {stage} - ID: {instanceID}
+            {stage} - ID: {instanceID}
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
@@ -76,7 +110,7 @@ export default function Admin() {
                   style={{ color: "white" }}
                   icon={<UserOutlined />}></Avatar>) : ("")}
               <Nav.Link onClick={() => {
-                handleReturn();
+                setShowModalReturn(true);
               }}>Return to Menu</Nav.Link>
             </Nav>
           </Navbar.Collapse>
@@ -97,6 +131,19 @@ export default function Admin() {
         }}
       >
       </div>
+
+      {/* Return Modal */}
+      <Modal show={showModalReturn} onHide={() => setShowModalReturn(false)} centered>
+        <Modal.Header>
+          <Modal.Title>Are you sure?</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="d-flex gap-2">
+            <Button className="w-50" variant="secondary" onClick={() => setShowModalReturn(false)}>Cancel</Button>
+            <Button className="w-50" variant="danger" onClick={() => handleReturn(instanceID)}>Return</Button>
+          </div>
+        </Modal.Body>
+      </Modal>
     </>
   );
 }

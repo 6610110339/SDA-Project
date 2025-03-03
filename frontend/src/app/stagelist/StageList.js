@@ -63,7 +63,7 @@ export default function Admin() {
     localStorage.setItem("instanceID", generateID);
 
     const stageData = {
-      stage: selectedStage,
+      stage: Number(selectedStage),
       instanceID: generateID,
       userID: userData.id,
       username: userData.username,
@@ -72,7 +72,20 @@ export default function Admin() {
     };
 
     try {
-      const response = await fetch("http://localhost:1337/api/active-stage-list", {
+      const fetchResponse = await fetch("http://localhost:1337/api/active-stage-list", {
+        headers: {
+          "Authorization": `Bearer ${token}`
+        }
+      });
+
+      if (!fetchResponse.ok) throw new Error("Failed to fetch existing data");
+
+      const existingData = await fetchResponse.json();
+      let updatedJSON = existingData.data.JSON || [];
+
+      updatedJSON.push(stageData);
+
+      const updateResponse = await fetch("http://localhost:1337/api/active-stage-list", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -80,12 +93,12 @@ export default function Admin() {
         },
         body: JSON.stringify({
           data: {
-            JSON: [stageData]
+            JSON: updatedJSON
           }
         })
       });
 
-      if (!response.ok) throw new Error("Failed to update active-stage-list in Strapi")
+      if (!updateResponse.ok) throw new Error("Failed to update active-stage-list in Strapi");
 
       router.push(`/game?stage=${selectedStage}&id=${generateID}`);
     } catch (error) {
