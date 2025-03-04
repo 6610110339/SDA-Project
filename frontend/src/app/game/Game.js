@@ -18,10 +18,12 @@ export default function Game() {
   const [showModalReturn, setShowModalReturn] = useState(false);
   const [showModalErrorInstance, setShowModalErrorInstance] = useState(false);
   const [showModalEnd, setShowModalEnd] = useState(false);
+  const [isClosing, setIsClosing] = useState(false);
   const [stage, setStage] = useState(null);
   const [instanceID, setInstanceID] = useState(null);
 
   const [currentTurn, setCurrentTurn] = useState("👤 Player");
+  const [turnCount, setTurnCount] = useState(1);
   const [charactersPoint, setCharactersPoint] = useState(1);
   const [charactersDamage, setCharactersDamage] = useState(20);
   const [charactersDefense, setCharactersDefense] = useState(20);
@@ -29,10 +31,12 @@ export default function Game() {
   const [charactersMaxHP, setCharactersMaxHP] = useState(20);
   const [isCharactersDefeated, setIsCharactersDefeated] = useState(false);
   const [monsterList, setMonsterList] = useState([]);
+  const [monsterEffect, setMonsterEffect] = useState([]);
   const [currentMonsterIndex, setCurrentMonsterIndex] = useState(0);
   const [monsterHP, setMonsterHP] = useState(100);
   const [isMonsterDefeated, setIsMonsterDefeated] = useState(false);
   const [isMonsterHit, setIsMonsterHit] = useState(false);
+  const [isMonsterLoaded, setIsMonsterLoaded] = useState(false);
   const [isCharacterHit, setIsCharacterHit] = useState(false);
   const [isEnded, setIsEnded] = useState(false);
   const [isUnknown, setIsUnknown] = useState(false);
@@ -43,12 +47,16 @@ export default function Game() {
   };
 
   const handleReturn = async (instanceID) => {
+    setIsClosing(true);
     try {
       const fetchResponse = await fetch("http://localhost:1337/api/active-stage-list", {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (!fetchResponse.ok) throw new Error("Failed to fetch existing data");
+      if (!fetchResponse.ok) {
+        setIsClosing(false);
+        throw new Error("Failed to fetch existing data")
+      };
 
       const existingData = await fetchResponse.json();
       let updatedJSON = existingData.data.JSON || [];
@@ -64,7 +72,10 @@ export default function Game() {
         body: JSON.stringify({ data: { JSON: updatedJSON } }),
       });
 
-      if (!updateResponse.ok) throw new Error("Failed to update active-stage-list in Strapi");
+      if (!updateResponse.ok) {
+        setIsClosing(false);
+        throw new Error("Failed to update active-stage-list in Strapi")
+      };
 
       localStorage.removeItem("selectStage");
       localStorage.removeItem("instanceID");
@@ -73,6 +84,7 @@ export default function Game() {
       localStorage.removeItem("rewardXP");
       router.push("/stagelist");
     } catch (error) {
+      setIsClosing(false);
       console.error("Error removing active stage:", error);
     }
   };
@@ -146,6 +158,8 @@ export default function Game() {
       setCurrentTurn("☠️ Monster")
       if ((monsterHP - charactersDamage) <= 0) {
         setIsMonsterDefeated(true);
+        setIsMonsterLoaded(false);
+        setMonsterEffect([]);
         const rewardCoins = localStorage.getItem("rewardCoins");
         const rewardXP = localStorage.getItem("rewardXP");
         localStorage.setItem("rewardCoins", (Number(rewardCoins) + Number(monsterList[currentMonsterIndex].drops.exp)));
@@ -153,6 +167,7 @@ export default function Game() {
         if (currentMonsterIndex < monsterList.length - 1) {
           setTimeout(() => {
             setIsMonsterDefeated(false);
+            setIsMonsterLoaded(true);
             setCurrentMonsterIndex(currentMonsterIndex + 1);
             setMonsterHP(monsterList[currentMonsterIndex + 1].health);
           }, 1000);
@@ -163,9 +178,6 @@ export default function Game() {
           return;
         }
       }
-      setTimeout(() => {
-        handleMonsterAttack();
-      }, 1000)
     }
   };
 
@@ -207,6 +219,17 @@ export default function Game() {
       }
     }
   };
+
+  useEffect(() => {
+    setTurnCount(turnCount + 1);
+    if (currentTurn == "☠️ Monster" && (!isEnded)) {
+      console.log("Effect: ", monsterEffect)
+      const attackTimeout = setTimeout(() => {
+        handleMonsterAttack();
+      }, 1000);
+      return () => clearTimeout(attackTimeout);
+    }
+  }, [currentTurn, isMonsterLoaded]);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -273,6 +296,7 @@ export default function Game() {
         setMonsterList(monsters);
         if (monsters.length > 0) {
           setMonsterHP(monsters[0].health);
+          setIsMonsterLoaded(true);
         }
       } catch (error) {
         console.error("Error fetching monster data:", error);
@@ -281,17 +305,6 @@ export default function Game() {
 
     fetchMonsterData();
     fetchUserRole();
-
-    const handleKeyDown = (event) => {
-      if (event.key === "e") {
-        console.log(`You pressed: ${event.key.toUpperCase()}`);
-      };
-      if (event.key === "q") {
-        console.log(`You pressed: ${event.key.toUpperCase()}`);
-      };
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
 
   }, []);
 
@@ -510,7 +523,7 @@ export default function Game() {
           <h4>--- Stage Rewards ---</h4>
           <h5>🪙 Coins: {Number(localStorage.getItem("rewardCoins"))}</h5>
           <h5>✨ XP: {Number(localStorage.getItem("rewardXP"))}</h5>
-          <Button className="w-100" variant="primary" onClick={() => handleReturn(instanceID)}>
+          <Button className="w-100" variant="primary" disabled={isClosing} onClick={() => handleReturn(instanceID)}>
             Claim and return
           </Button>
         </Modal.Body>
@@ -536,10 +549,10 @@ export default function Game() {
         </Modal.Header>
         <Modal.Body>
           <div className="d-flex gap-2">
-            <Button className="w-50" variant="secondary" onClick={() => setShowModalReturn(false)}>
+            <Button className="w-50" variant="secondary" disabled={isClosing} onClick={() => setShowModalReturn(false)}>
               Cancel
             </Button>
-            <Button className="w-50" variant="danger" onClick={() => handleReturn(instanceID)}>
+            <Button className="w-50" variant="danger" disabled={isClosing} onClick={() => handleReturn(instanceID)}>
               Return
             </Button>
           </div>

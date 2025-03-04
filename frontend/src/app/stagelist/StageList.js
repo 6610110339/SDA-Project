@@ -18,6 +18,7 @@ export default function Admin() {
   const [modalOpen, setModalOpen] = useState(false);
   const [showClassPopup, setShowClassPopup] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isOpening, setIsOpening] = useState(false);
   const [selectedStage, setSelectedStage] = useState(null);
 
   useEffect(() => {
@@ -80,6 +81,7 @@ export default function Admin() {
     const generateID = Math.floor(Math.random() * 1000000);
     localStorage.setItem("selectStage", selectedStage);
     localStorage.setItem("instanceID", generateID);
+    setIsOpening(true);
 
     const stageData = {
       stage: Number(selectedStage),
@@ -179,7 +181,7 @@ export default function Admin() {
           <p>Recommend Level: {selectedStage?.level}</p>
         </Modal.Body>
         <Modal.Footer>
-          <button type="button" className="btn btn-outline-danger" onClick={() => { handleAttack(selectedStage?.key) }}>Attack</button>
+          <button type="button" className="btn btn-outline-danger" disabled={isOpening} onClick={() => { handleAttack(selectedStage?.key) }}>Attack</button>
         </Modal.Footer>
       </Modal>
 
