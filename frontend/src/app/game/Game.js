@@ -166,6 +166,23 @@ export default function Game() {
     }
   };
 
+  const handlePlayerHeal = () => {
+    const player_heal = new Audio("/sounds/player_heal.mp3");
+    const healAmount = Number((charactersMaxHP * 25) / 100).toFixed(0)
+    setCharactersPoint(charactersPoint - 2);
+    setCharactersHP(charactersHP + Number(healAmount));
+    setIsCharacterHit(true);
+    setTimeout(() => {
+      setIsCharacterHit(false);
+    }, 300);
+    player_heal.volume = 0.25
+    player_heal.play()
+    setCurrentTurn("☠️ Monster")
+    setTimeout(() => {
+      handleMonsterAttack();
+    }, 1000)
+  };
+
   const handleMonsterAttack = () => {
     const player_hurt = new Audio("/sounds/player_hurt.mp3");
     if (charactersHP >= 0) {
@@ -337,7 +354,8 @@ export default function Game() {
                         <p style={{ height: "20px" }}><strong style={{ color: "blue" }}>🔶 Action:</strong></p>
                         <div style={{ bottom: "20px", display: "flex", gap: "15px" }}>
                           <Tooltip title="Attack the enemy & +1 💠 Point" color="red">
-                            <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect" onClick={() => { if (currentTurn === "👤 Player" && !isEnded) handlePlayerAttack() }}
+                            <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect"
+                              onClick={() => { if (currentTurn === "👤 Player" && !isEnded) handlePlayerAttack() }}
                               style={{
                                 padding: "10px 20px",
                                 fontSize: "18px",
@@ -347,14 +365,31 @@ export default function Game() {
                               ⚔️ Attack</button>
                           </Tooltip>
                           <Tooltip title="Use Skill on Enemy & Consume 💠 Point" color="blue">
-                            <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect" onClick={() => { if (currentTurn === "👤 Player" && !isEnded) handlePlayerAttack() }}
+                            <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect"
+                              onClick={() => { if (currentTurn === "👤 Player" && !isEnded) handlePlayerAttack() }}
                               style={{
                                 padding: "10px 20px",
                                 fontSize: "18px",
                                 borderRadius: "10px",
                                 backgroundColor: currentTurn === "👤 Player" ? ("blue") : ("grey")
                               }}>
-                              🌀 Skill</button></Tooltip>
+                              🌀 Skill</button>
+                          </Tooltip>
+                          <Tooltip title="Use 2 💠 Point to Heal 25% of MaxHP" color="green">
+                            <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect"
+                              onClick={() => {
+                                if (currentTurn === "👤 Player" && !isEnded) {
+                                  if (charactersPoint >= 2) handlePlayerHeal()
+                                }
+                              }}
+                              style={{
+                                padding: "10px 20px",
+                                fontSize: "18px",
+                                borderRadius: "10px",
+                                backgroundColor: currentTurn === "👤 Player" ? ("lime") : ("grey")
+                              }}>
+                              💊 Heal</button>
+                          </Tooltip>
                         </div>
                       </Card>
                     </div>
