@@ -4,7 +4,7 @@ import { useEffect, useState, } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal } from "react-bootstrap";
-import { Flex } from 'antd';
+import { Flex, Card } from 'antd';
 import "../globals.css";
 
 export default function Game() {
@@ -16,8 +16,13 @@ export default function Game() {
   const [userCharacters, setUserCharacters] = useState(null);
   const [showModalReturn, setShowModalReturn] = useState(false);
   const [showModalErrorInstance, setShowModalErrorInstance] = useState(false);
+  const [showModalEnd, setShowModalEnd] = useState(false);
   const [stage, setStage] = useState(null);
   const [instanceID, setInstanceID] = useState(null);
+  const [rewardData, setRewardData] = useState({
+    Value_XP: 0,
+    Value_Coins: 0
+  });
 
   const [currentTurn, setCurrentTurn] = useState("👤 Player");
   const [charactersDamage, setCharactersDamage] = useState(20);
@@ -141,6 +146,54 @@ export default function Game() {
     }
   };
 
+  const handleClaim = async () => {
+    try {
+      const rewardXP = rewardData.Value_XP;
+      const rewardCoins = rewardData.Value_Coins;
+
+      const userDocumentId = String(userData.documentId);
+
+      const response = await fetch(`http://localhost:1337/api/characters?populate=*&filters[owner][documentId][$eq]=${userDocumentId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+
+      if (!data.data || data.data.length === 0) {
+        alert("❌ ไม่พบตัวละครของคุณ!");
+        return;
+      }
+
+      const character = data.data[0];
+      const characterId = character.documentId;
+
+      const updatedXP = Number(character.Value_XP + rewardXP);
+      const updatedCoins = Number(character.Value_Coins + rewardCoins);
+      const newData = {
+        Value_XP: updatedXP,
+        Value_Coins: updatedCoins,
+      };
+
+      const updateResponse = await fetch(`http://localhost:1337/api/characters/${characterId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ data: newData }),
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error("Error!");
+      }
+
+      const instanceID = localStorage.getItem("instanceID");
+      handleReturn(instanceID);
+
+    } catch (error) {
+      console.error("Error claiming reward:", error);
+    }
+  };
+
   const handlePlayerAttack = () => {
     const monster_hurt = new Audio("/sounds/monster_hurt.mp3");
     if (monsterHP >= 0) {
@@ -154,6 +207,10 @@ export default function Game() {
       setCurrentTurn("☠️ Monster")
       if ((monsterHP - charactersDamage) <= 0) {
         setIsMonsterDefeated(true);
+        setRewardData((prevReward) => ({
+          Value_XP: Number(prevReward.Value_XP) + Number(monsterList[currentMonsterIndex].drops.exp),
+          Value_Coins: Number(prevReward.Value_Coins) + Number(monsterList[currentMonsterIndex].drops.coins)
+        }));
         if (currentMonsterIndex < monsterList.length - 1) {
           setTimeout(() => {
             setIsMonsterDefeated(false);
@@ -162,10 +219,7 @@ export default function Game() {
           }, 1000);
         } else {
           setIsEnded(true);
-          setTimeout(() => {
-            const instanceID = localStorage.getItem("instanceID");
-            handleReturn(instanceID);
-          }, 3000);
+          setShowModalEnd(true);
           return;
         }
       }
@@ -202,7 +256,7 @@ export default function Game() {
       <Navbar bg="dark" variant="dark" expand="lg" className="shadow-sm" fixed="top">
         <Container>
           <Navbar.Brand className="fw-bold">
-            {stage} (#{instanceID}) - Wave: {currentMonsterIndex + 1}/{monsterList.length}
+            {stage} - Wave: {currentMonsterIndex + 1}/{monsterList.length}
           </Navbar.Brand>
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
@@ -252,84 +306,78 @@ export default function Game() {
                       <h2 style={{ fontSize: "16px", color: "black" }}>🔹 Current Turn: {currentTurn}</h2>
                     </div>
                   ) : i === 1 ? (
-                    <div>
-                      <div>
-                        <div className="battle-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", height: "100vh", color: "white", textAlign: "center", padding: "20px" }}>
-                          {charactersHP >= 0 ? (
-                            <div style={{ textAlign: "center" }}>
-                              {isCharactersDefeated ? (
-                                <h3 style={{ fontSize: "24px", color: "black" }}>Character Defeated!</h3>
-                              ) : (
-                                <>
-                                  <h2 style={{ fontSize: "24px", color: "black" }}>Your Character (Lv. {userData?.character.Value_Level ?? "???"})</h2>
-                                  <img
-                                    className={isCharacterHit ? "monster-hit" : ""}
-                                    src={`/Characters/SwordMan.png`}
-                                    style={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px" }}
-                                  />
-                                  <div className="progress" style={{ width: "300px", height: "18px", backgroundColor: "#333", borderRadius: "5px", margin: "10px auto", position: "relative" }}>
-                                    <div className="progress-bar bg-danger"
-                                      style={{
-                                        width: `${(charactersHP / charactersMaxHP) * 100}%`,
-                                        height: "100%",
-                                        borderRadius: "5px"
-                                      }}>
-                                      <span style={{ fontSize: "14px", position: "absolute", width: "100%", textAlign: "center", fontWeight: "bold" }}>
-                                        {charactersHP} / {charactersMaxHP}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </>
-                              )}
-                            </div>
+                    <div className="battle-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", height: "100vh", color: "white", textAlign: "center", padding: "20px" }}>
+                      {charactersHP >= 0 ? (
+                        <div style={{ textAlign: "center" }}>
+                          {isCharactersDefeated ? (
+                            <h3 style={{ fontSize: "24px", color: "black" }}>Character Defeated!</h3>
                           ) : (
-                            <h3 style={{ fontSize: "24px", color: "black" }}>You Lost!</h3>
+                            <>
+                              <h2 style={{ fontSize: "24px", color: "black" }}>Your Character (Lv. {userData?.character.Value_Level ?? "???"})</h2>
+                              <img
+                                className={isCharacterHit ? "monster-hit" : ""}
+                                src={`/Characters/SwordMan.png`}
+                                style={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px" }}
+                              />
+                              <div className="progress" style={{ width: "300px", height: "18px", backgroundColor: "#333", borderRadius: "5px", margin: "10px auto", position: "relative" }}>
+                                <div className="progress-bar bg-danger"
+                                  style={{
+                                    width: `${(charactersHP / charactersMaxHP) * 100}%`,
+                                    height: "100%",
+                                    borderRadius: "5px"
+                                  }}>
+                                  <span style={{ fontSize: "14px", position: "absolute", width: "100%", textAlign: "center", fontWeight: "bold" }}>
+                                    {charactersHP} / {charactersMaxHP}
+                                  </span>
+                                </div>
+                              </div>
+                            </>
                           )}
-                          {currentTurn === "👤 Player" && !isEnded ? (
-                            <div style={{ position: "absolute", bottom: "20px", display: "flex", gap: "15px" }}>
-                              <button className="btn btn-danger" onClick={() => { handlePlayerAttack() }} style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>⚔️ Attack</button>
-                              <button className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>🌀 Skill</button>
-                            </div>
-                          ) : ("")}
                         </div>
-                      </div>
+                      ) : (
+                        ""
+                      )}
+                      {currentTurn === "👤 Player" && !isEnded ? (
+                        <div style={{ position: "absolute", bottom: "20px", display: "flex", gap: "15px" }}>
+                          <button className="btn btn-danger" onClick={() => { handlePlayerAttack() }} style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>⚔️ Attack</button>
+                          <button className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>🌀 Skill</button>
+                        </div>
+                      ) : ("")}
                     </div>
+                  ) : i === 2 ? (
+                    ""
                   ) : i === 3 ? (
-                    <div>
-                      <div>
-                        <div className="battle-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", height: "100vh", color: "white", textAlign: "center", padding: "20px" }}>
-                          {monsterList.length > 0 && (!isEnded || charactersHP <= 0) ? (
-                            <div style={{ textAlign: "center" }}>
-                              {isMonsterDefeated ? (
-                                <h3 style={{ fontSize: "24px", color: "black" }}>Monster Defeated! Prepare for next wave!</h3>
-                              ) : (
-                                <>
-                                  <h2 style={{ fontSize: "24px", color: "black" }}>{monsterList[currentMonsterIndex].name} (Lv. {monsterList[currentMonsterIndex].level})</h2>
-                                  <img
-                                    className={isMonsterHit ? "monster-hit" : ""}
-                                    src={`/Monster/${monsterList[currentMonsterIndex].id}.png`}
-                                    style={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px", }}
-                                  />
-                                  <div className="progress" style={{ width: "300px", height: "18px", backgroundColor: "#333", borderRadius: "5px", margin: "10px auto", position: "relative" }}>
-                                    <div className="progress-bar bg-danger"
-                                      style={{
-                                        width: `${(monsterHP / monsterList[currentMonsterIndex]?.health) * 100}%`,
-                                        height: "100%",
-                                        borderRadius: "5px"
-                                      }}>
-                                      <span style={{ fontSize: "14px", position: "absolute", width: "100%", textAlign: "center", fontWeight: "bold" }}>
-                                        {monsterHP} / {monsterList[currentMonsterIndex]?.health}
-                                      </span>
-                                    </div>
-                                  </div>
-                                </>
-                              )}
-                            </div>
+                    <div className="battle-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", height: "100vh", color: "white", textAlign: "center", padding: "20px" }}>
+                      {monsterList.length > 0 && (!isEnded || charactersHP <= 0) ? (
+                        <div style={{ textAlign: "center" }}>
+                          {isMonsterDefeated ? (
+                            <h3 style={{ fontSize: "24px", color: "black" }}>Monster Defeated! Prepare for next wave!</h3>
                           ) : (
-                            <h3 style={{ fontSize: "24px", color: "black" }}>You Won!</h3>
+                            <>
+                              <h2 style={{ fontSize: "24px", color: "black" }}>{monsterList[currentMonsterIndex].name} (Lv. {monsterList[currentMonsterIndex].level})</h2>
+                              <img
+                                className={isMonsterHit ? "monster-hit" : ""}
+                                src={`/Monster/${monsterList[currentMonsterIndex].id}.png`}
+                                style={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px", }}
+                              />
+                              <div className="progress" style={{ width: "300px", height: "18px", backgroundColor: "#333", borderRadius: "5px", margin: "10px auto", position: "relative" }}>
+                                <div className="progress-bar bg-danger"
+                                  style={{
+                                    width: `${(monsterHP / monsterList[currentMonsterIndex]?.health) * 100}%`,
+                                    height: "100%",
+                                    borderRadius: "5px"
+                                  }}>
+                                  <span style={{ fontSize: "14px", position: "absolute", width: "100%", textAlign: "center", fontWeight: "bold" }}>
+                                    {monsterHP} / {monsterList[currentMonsterIndex]?.health}
+                                  </span>
+                                </div>
+                              </div>
+                            </>
                           )}
                         </div>
-                      </div>
+                      ) : (
+                        ""
+                      )}
                     </div>
                   ) : (
                     ""
@@ -338,9 +386,23 @@ export default function Game() {
               ))}
             </Flex>
           </Flex>
-
         </div>
       </div>
+
+      {/* End Modal */}
+      <Modal show={showModalEnd} backdrop="static" keyboard={false} centered>
+        <Modal.Header>
+          <Modal.Title>Stage Completed!</Modal.Title>
+        </Modal.Header>
+        <Modal.Body style={{ textAlign: "center", justifyContent: "center" }}>
+          <h4>= Stage Rewards =</h4>
+          <h5>🪙 Coins: {Number(rewardData.Value_Coins)}</h5>
+          <h5>✨ XP: {Number(rewardData.Value_XP)}</h5>
+          <Button className="w-100" variant="primary" onClick={() => handleClaim()}>
+            Claim and return
+          </Button>
+        </Modal.Body>
+      </Modal>
 
       {/* Error Modal */}
       <Modal show={showModalErrorInstance} backdrop="static" keyboard={false} centered>
@@ -370,7 +432,6 @@ export default function Game() {
           </div>
         </Modal.Body>
       </Modal>
-
     </>
   );
 }
