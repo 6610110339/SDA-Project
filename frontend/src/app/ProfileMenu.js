@@ -118,14 +118,15 @@ export default function ProfileMenu() {
             {/* Logout Modal */}
             <Modal show={showModalLogout} onHide={() => setShowModalLogout(false)} centered>
                 <Modal.Header>
-                    <Modal.Title>Are you sure?</Modal.Title>
+                    <Modal.Title>Confirmation</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <div className="d-flex gap-2">
-                        <Button className="w-50" variant="secondary" onClick={() => setShowModalLogout(false)}>Cancel</Button>
-                        <Button className="w-50" danger type="primary" onClick={() => handleLogout()}>Logout</Button>
-                    </div>
+                    <p>Are you sure?</p>
                 </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModalLogout(false)}>Cancel</Button>
+                    <Button danger type="primary" onClick={() => handleLogout()}>Logout</Button>
+                </Modal.Footer>
             </Modal>
         </div>
     );

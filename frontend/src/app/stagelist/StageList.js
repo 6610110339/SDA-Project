@@ -175,11 +175,11 @@ export default function Admin() {
           <Modal.Title>Attack {selectedStage?.name}?</Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          Recommend Level: {selectedStage?.level}
-          <div>
-            <button type="button" className="btn btn-outline-danger" onClick={() => { handleAttack(selectedStage?.key) }}>Attack</button>
-          </div>
+          <p>Recommend Level: {selectedStage?.level}</p>
         </Modal.Body>
+        <Modal.Footer>
+          <button type="button" className="btn btn-outline-danger" onClick={() => { handleAttack(selectedStage?.key) }}>Attack</button>
+        </Modal.Footer>
       </Modal>
 
       <Modal show={showClassPopup} backdrop="static" keyboard={false} centered>

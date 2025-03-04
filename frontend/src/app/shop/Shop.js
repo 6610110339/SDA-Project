@@ -17,13 +17,14 @@ export default function Shop() {
   const [userUpgrades, setUserUpgrades] = useState(null);
   const [showClassPopup, setShowClassPopup] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [isPaying, setIsPaying] = useState(false);
   const [confirmUpgrade, setConfirmUpgrade] = useState({ show: false, type: "" });
 
   const cardStyle = {
     width: "250px",
     height: "50%",
     backgroundColor: "rgba(255, 255, 255, 0.8)",
-
+    className: "hover-effect",
     justifyContent: "space-between"
   };
 
@@ -95,6 +96,7 @@ export default function Shop() {
   };
   const updateUpgradeData = async (type) => {
     try {
+      setIsPaying(true);
       const userDocumentId = String(userData.documentId);
       const upgragePrice = upgadeCost[type] + (Number(userData.upgrade[type]) * upgadeCost[type]);
 
@@ -104,6 +106,7 @@ export default function Shop() {
       const data = await response.json();
 
       if (!data.data || data.data.length === 0) {
+        setIsPaying(false);
         throw new Error("Error!");
       };
 
@@ -111,6 +114,7 @@ export default function Shop() {
       const characterId = character.documentId;
 
       if (character.Value_Coins < upgragePrice) {
+        setIsPaying(false);
         return;
       };
 
@@ -153,6 +157,7 @@ export default function Shop() {
                 Upgrade_Skill: Number(upgrageValue)
               };
             } else {
+              setIsPaying(false);
               return;
             }
           }
@@ -169,12 +174,12 @@ export default function Shop() {
       });
 
       if (!updateResponse.ok) {
+        setIsPaying(false);
         throw new Error("Error!");
       }
 
-
-
     } catch (error) {
+      setIsPaying(false);
       console.error("Error claiming reward:", error);
     }
   };
@@ -190,6 +195,7 @@ export default function Shop() {
       const data = await response.json();
 
       if (!data.data || data.data.length === 0) {
+        setIsPaying(false);
         throw new Error("Error!");
       };
 
@@ -216,12 +222,15 @@ export default function Shop() {
       });
 
       if (!updateResponse.ok) {
+        setIsPaying(false);
         throw new Error("Error!");
       }
 
       fetchUserRole();
+      setIsPaying(false);
 
     } catch (error) {
+      setIsPaying(false);
       console.error("Error claiming reward:", error);
     }
   };
@@ -325,16 +334,16 @@ export default function Shop() {
         )}
       </div >
 
-      <Modal show={confirmUpgrade.show} onHide={handleUpgradeCancel} centered>
-        <Modal.Header closeButton>
+      <Modal show={confirmUpgrade.show} backdrop="static" keyboard={false} centered>
+        <Modal.Header>
           <Modal.Title>Confirmation</Modal.Title>
         </Modal.Header>
         <Modal.Body>
           <p>Are you sure to upgrade <strong>{confirmUpgrade.type.replace("Upgrade_", "")}</strong>?</p>
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleUpgradeCancel}>Cancel</Button>
-          <Button variant="primary" onClick={handleUpgradeProceed}>Upgrade</Button>
+          <Button variant="secondary" disabled={isPaying} onClick={handleUpgradeCancel}>Cancel</Button>
+          <Button variant="primary" disabled={isPaying} onClick={handleUpgradeProceed}>Upgrade</Button>
         </Modal.Footer>
       </Modal>
 
