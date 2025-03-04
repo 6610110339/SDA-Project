@@ -99,6 +99,14 @@ export default function MainMenu() {
             >
               Start Game
             </Button>
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={() => router.push("/shop")}
+              className="mb-3 fw-bold"
+            >
+              Upgrade  Shop
+            </Button>
             {userRole === "Admin" && (
               <Button
                 variant="warning"

@@ -63,12 +63,16 @@ export default function Admin() {
     fetchUserRole();
   }, []);
 
-  const stages = [
+  const stages_map1 = [
     { key: '1', name: "Stage 1", difficulty: "Easy", color: "#008000", level: 0 },
     { key: '2', name: "Stage 2", difficulty: "Easy", color: "#008000", level: 2 },
     { key: '3', name: "Stage 3", difficulty: "Normal", color: "#f5b041", level: 5 },
     { key: '4', name: "Stage 4", difficulty: "Normal", color: "#f5b041", level: 8 },
     { key: '5', name: "Stage 5", difficulty: "Hard", color: "#c0392b", level: 12 },
+  ];
+
+  const stages_map2 = [
+    { key: '6', name: "Stage 6", difficulty: "Normal", color: "#f5b041", level: 16 },
   ];
 
   const handleAttack = async (selectedStage) => {
@@ -143,8 +147,17 @@ export default function Admin() {
         {isLoading ? ("") : (
           <div style={{ width: "100%", maxWidth: "700px", backgroundColor: "rgba(255, 255, 255, 0.9)", padding: "20px", borderRadius: "1rem" }}>
             <ListGroup className="shadow-lg rounded-4 overflow-hidden">
-              <ListGroup.Item className="bg-primary text-white fw-bold fs-5">🌳 Map 1 - Forest</ListGroup.Item>
-              <Collapse items={stages.map(stage => ({
+              <ListGroup.Item style={{ backgroundColor: "green" }} className="text-white fw-bold fs-5">🌳 Map 1 - Forest</ListGroup.Item>
+              <Collapse items={stages_map1.map(stage => ({
+                key: stage.key,
+                label: <div><p>{stage.name}</p><Tag color={stage.color}>{stage.difficulty}</Tag></div>,
+                children: <>
+                  <p>Recommend Level: {stage.level}</p>
+                  <button type="button" className="btn btn-outline-danger" onClick={() => { setSelectedStage(stage); setModalOpen(true); }}>Attack</button>
+                </>
+              }))} />
+              <ListGroup.Item style={{ backgroundColor: "grey" }} className="text-white fw-bold fs-5">🪦 Map 2 - Graveyard</ListGroup.Item>
+              <Collapse items={stages_map2.map(stage => ({
                 key: stage.key,
                 label: <div><p>{stage.name}</p><Tag color={stage.color}>{stage.difficulty}</Tag></div>,
                 children: <>
