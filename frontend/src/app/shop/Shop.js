@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal, ListGroup } from "react-bootstrap";
-import { Collapse, Tag, Avatar, Card } from 'antd';
+import { Collapse, Tag, Avatar, Card, notification, Space } from 'antd';
 import ProfileMenu from "../ProfileMenu";
 
 export default function Shop() {
@@ -17,20 +17,20 @@ export default function Shop() {
   const [userUpgrades, setUserUpgrades] = useState(null);
   const [showClassPopup, setShowClassPopup] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [confirmUpgrade, setConfirmUpgrade] = useState({ show: false, type: "" });
 
   const cardStyle = {
     width: "250px",
     height: "50%",
     backgroundColor: "rgba(255, 255, 255, 0.8)",
-    display: "flex",
-    flexDirection: "column",
+
     justifyContent: "space-between"
   };
 
   const upgadeCost = {
     Upgrade_Health: 15,
     Upgrade_Damage: 25,
-    Upgrade_Defense: 15,
+    Upgrade_Defense: 25,
     Upgrade_Skill: 25
   };
 
@@ -45,38 +45,186 @@ export default function Shop() {
       setIsLoggedIn(true);
     }
 
-    const fetchUserRole = async () => {
-      try {
-        const response = await fetch("http://localhost:1337/api/users/me?populate=*", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        if (!response.ok) throw new Error("Failed to fetch user data");
-
-        const userData = await response.json();
-        setUserData(userData);
-        localStorage.setItem("userData", JSON.stringify(userData));
-        setUserCharacters(userData.character);
-        setUserUpgrades(userData.upgrade);
-        setUserRole(userData.role.name);
-
-        if (!userData.character) {
-          setShowClassPopup(true);
-          return;
-        };
-
-        setIsLoading(false);
-
-      } catch (error) {
-        console.error("Error fetching user role:", error);
-        setUserRole("NULL");
-      }
-    };
-
     fetchUserRole();
   }, []);
+
+  const handleUpgradeConfirm = (type) => {
+    setConfirmUpgrade({ show: true, type });
+  };
+
+  const handleUpgradeCancel = () => {
+    setConfirmUpgrade({ show: false, type: "" });
+  };
+
+  const handleUpgradeProceed = async () => {
+    if (confirmUpgrade.type) {
+      await updateUpgradeData(confirmUpgrade.type);
+      setConfirmUpgrade({ show: false, type: "" });
+    }
+  };
+
+  const fetchUserRole = async () => {
+    try {
+      const token = localStorage.getItem("authToken");
+      const response = await fetch("http://localhost:1337/api/users/me?populate=*", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) throw new Error("Failed to fetch user data");
+
+      const userData = await response.json();
+      setUserData(userData);
+      localStorage.setItem("userData", JSON.stringify(userData));
+      setUserCharacters(userData.character);
+      setUserUpgrades(userData.upgrade);
+      setUserRole(userData.role.name);
+
+      if (!userData.character) {
+        setShowClassPopup(true);
+        return;
+      };
+
+      setIsLoading(false);
+
+    } catch (error) {
+      console.error("Error fetching user role:", error);
+      setUserRole("NULL");
+    }
+  };
+  const updateUpgradeData = async (type) => {
+    try {
+      const userDocumentId = String(userData.documentId);
+      const upgragePrice = upgadeCost[type] + (Number(userData.upgrade[type]) * upgadeCost[type]);
+
+      const response = await fetch(`http://localhost:1337/api/upgrades?populate=*&filters[owner][documentId][$eq]=${userDocumentId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+
+      if (!data.data || data.data.length === 0) {
+        throw new Error("Error!");
+      };
+
+      const character = data.data[0];
+      const characterId = character.documentId;
+
+      if (character.Value_Coins < upgragePrice) {
+        return;
+      };
+
+      let newData_Upgrade = {};
+      handleCoinsCost(upgragePrice);
+
+      if (type == "Upgrade_Health") {
+        let upgrageValue = Number(userData.upgrade.Upgrade_Health + 1);
+        newData_Upgrade = {
+          Upgrade_Health: Number(upgrageValue),
+          Upgrade_Damage: Number(userData.upgrade.Upgrade_Damage),
+          Upgrade_Defense: Number(userData.upgrade.Upgrade_Defense),
+          Upgrade_Skill: Number(userData.upgrade.Upgrade_Skill)
+        };
+      } else {
+        if (type == "Upgrade_Damage") {
+          let upgrageValue = Number(userData.upgrade.Upgrade_Damage + 1);
+          newData_Upgrade = {
+            Upgrade_Health: Number(userData.upgrade.Upgrade_Health),
+            Upgrade_Damage: Number(upgrageValue),
+            Upgrade_Defense: Number(userData.upgrade.Upgrade_Defense),
+            Upgrade_Skill: Number(userData.upgrade.Upgrade_Skill)
+          };
+        } else {
+          if (type == "Upgrade_Defense") {
+            let upgrageValue = Number(userData.upgrade.Upgrade_Defense + 1);
+            newData_Upgrade = {
+              Upgrade_Health: Number(userData.upgrade.Upgrade_Health),
+              Upgrade_Damage: Number(userData.upgrade.Upgrade_Damage),
+              Upgrade_Defense: Number(upgrageValue),
+              Upgrade_Skill: Number(userData.upgrade.Upgrade_Skill)
+            };
+          } else {
+            if (type == "Upgrade_Skill") {
+              let upgrageValue = Number(userData.upgrade.Upgrade_Skill + 1);
+              newData_Upgrade = {
+                Upgrade_Health: Number(userData.upgrade.Upgrade_Health),
+                Upgrade_Damage: Number(userData.upgrade.Upgrade_Damage),
+                Upgrade_Defense: Number(userData.upgrade.Upgrade_Defense),
+                Upgrade_Skill: Number(upgrageValue)
+              };
+            } else {
+              return;
+            }
+          }
+        }
+      }
+
+      const updateResponse = await fetch(`http://localhost:1337/api/upgrades/${characterId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ data: newData_Upgrade }),
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error("Error!");
+      }
+
+
+
+    } catch (error) {
+      console.error("Error claiming reward:", error);
+    }
+  };
+
+  const handleCoinsCost = async (price) => {
+    try {
+
+      const userDocumentId = String(userData.documentId);
+
+      const response = await fetch(`http://localhost:1337/api/characters?populate=*&filters[owner][documentId][$eq]=${userDocumentId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+
+      if (!data.data || data.data.length === 0) {
+        throw new Error("Error!");
+      };
+
+      const character = data.data[0];
+      const characterId = character.documentId;
+
+      let updatedXP = Number(character.Value_XP);
+      let updatedCoins = Number(character.Value_Coins - price);
+      let updatedLevel = Number(character.Value_Level)
+
+      const newData = {
+        Value_XP: updatedXP,
+        Value_Coins: updatedCoins,
+        Value_Level: updatedLevel
+      };
+
+      const updateResponse = await fetch(`http://localhost:1337/api/characters/${characterId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ data: newData }),
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error("Error!");
+      }
+
+      fetchUserRole();
+
+    } catch (error) {
+      console.error("Error claiming reward:", error);
+    }
+  };
 
   return (
     <>
@@ -116,10 +264,10 @@ export default function Shop() {
             >
               <div style={{ flexGrow: 1 }}>
                 <p style={{ height: "5px" }}><strong>Current Level: {userData?.upgrade.Upgrade_Health ?? "?"}</strong></p>
-                <p style={{ height: "5px" }}><strong>Bonus Stats: +{(Number(userData?.upgrade.Upgrade_Health) * 5)} ❤️ Health</strong></p>
+                <p style={{ height: "5px" }}><strong>Bonus Stats: +{(Number(userData?.upgrade.Upgrade_Health) * 2)} ❤️ Health</strong></p>
                 <p style={{ height: "20px" }}><strong>Upgrade Cost: {upgadeCost.Upgrade_Health + (Number(userData?.upgrade.Upgrade_Health) * upgadeCost.Upgrade_Health)} Coins</strong></p>
                 <button type="button" className="btn btn-outline-primary"
-                  onClick={() => { console.log("WDWA") }}
+                  onClick={() => handleUpgradeConfirm("Upgrade_Health")}
                   style={{ width: "100%" }}
                 >Upgrade
                 </button>
@@ -130,22 +278,65 @@ export default function Shop() {
               variant="borderless"
               style={cardStyle}
             >
+              <div style={{ flexGrow: 1 }}>
+                <p style={{ height: "5px" }}><strong>Current Level: {userData?.upgrade.Upgrade_Damage ?? "?"}</strong></p>
+                <p style={{ height: "5px" }}><strong>Bonus Stats: +{(Number(userData?.upgrade.Upgrade_Damage) * 1)} 💥 Damage</strong></p>
+                <p style={{ height: "20px" }}><strong>Upgrade Cost: {upgadeCost.Upgrade_Damage + (Number(userData?.upgrade.Upgrade_Damage) * upgadeCost.Upgrade_Damage)} Coins</strong></p>
+                <button type="button" className="btn btn-outline-primary"
+                  onClick={() => handleUpgradeConfirm("Upgrade_Damage")}
+                  style={{ width: "100%" }}
+                >Upgrade
+                </button>
+              </div>
             </Card>
             <Card
               title="🛡️ Upgrade Defense"
               variant="borderless"
               style={cardStyle}
             >
+              <div style={{ flexGrow: 1 }}>
+                <p style={{ height: "5px" }}><strong>Current Level: {userData?.upgrade.Upgrade_Defense ?? "?"}</strong></p>
+                <p style={{ height: "5px" }}><strong>Bonus Stats: +{(Number(userData?.upgrade.Upgrade_Defense) * 1)} 🛡️ Defense</strong></p>
+                <p style={{ height: "20px" }}><strong>Upgrade Cost: {upgadeCost.Upgrade_Defense + (Number(userData?.upgrade.Upgrade_Defense) * upgadeCost.Upgrade_Defense)} Coins</strong></p>
+                <button type="button" className="btn btn-outline-primary"
+                  onClick={() => handleUpgradeConfirm("Upgrade_Defense")}
+                  style={{ width: "100%" }}
+                >Upgrade
+                </button>
+              </div>
             </Card>
             <Card
-              title="🌀 Upgrade Skill"
+              title="🌀 Upgrade Skill Damage"
               variant="borderless"
               style={cardStyle}
             >
+              <div style={{ flexGrow: 1 }}>
+                <p style={{ height: "5px" }}><strong>Current Level: {userData?.upgrade.Upgrade_Skill ?? "?"}</strong></p>
+                <p style={{ height: "5px" }}><strong>Bonus Stats: +{(Number(userData?.upgrade.Upgrade_Skill) * 1)} 🌀 Damage</strong></p>
+                <p style={{ height: "20px" }}><strong>Upgrade Cost: {upgadeCost.Upgrade_Skill + (Number(userData?.upgrade.Upgrade_Skill) * upgadeCost.Upgrade_Skill)} Coins</strong></p>
+                <button type="button" className="btn btn-outline-primary"
+                  onClick={() => handleUpgradeConfirm("Upgrade_Skill")}
+                  style={{ width: "100%" }}
+                >Upgrade
+                </button>
+              </div>
             </Card>
           </div>
         )}
       </div >
+
+      <Modal show={confirmUpgrade.show} onHide={handleUpgradeCancel} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirmation</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Are you sure to upgrade <strong>{confirmUpgrade.type.replace("Upgrade_", "")}</strong>?</p>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleUpgradeCancel}>Cancel</Button>
+          <Button variant="primary" onClick={handleUpgradeProceed}>Upgrade</Button>
+        </Modal.Footer>
+      </Modal>
 
       <Modal show={showClassPopup} backdrop="static" keyboard={false} centered>
         <Modal.Header>

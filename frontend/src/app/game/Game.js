@@ -14,6 +14,7 @@ export default function Game() {
   const [userRole, setUserRole] = useState(null);
   const [token, setToken] = useState(null);
   const [userCharacters, setUserCharacters] = useState(null);
+  const [userUpgrades, setUserUpgrades] = useState(null);
   const [showModalReturn, setShowModalReturn] = useState(false);
   const [showModalErrorInstance, setShowModalErrorInstance] = useState(false);
   const [showModalEnd, setShowModalEnd] = useState(false);
@@ -23,6 +24,7 @@ export default function Game() {
   const [currentTurn, setCurrentTurn] = useState("👤 Player");
   const [charactersPoint, setCharactersPoint] = useState(1);
   const [charactersDamage, setCharactersDamage] = useState(20);
+  const [charactersDefense, setCharactersDefense] = useState(20);
   const [charactersHP, setCharactersHP] = useState(20);
   const [charactersMaxHP, setCharactersMaxHP] = useState(20);
   const [isCharactersDefeated, setIsCharactersDefeated] = useState(false);
@@ -242,7 +244,7 @@ export default function Game() {
         setUserRole(userData.role.name);
 
         /////////////
-        setCharactersDamage((Number(userData.character.Value_Level) * 2) + 1);
+        setCharactersDamage((Number(userData.character.Value_Level) * 1) + 1);
         setCharactersMaxHP((Number(userData.character.Value_Level) * 10) + 5);
         setCharactersHP((Number(userData.character.Value_Level) * 10) + 5);
         setIsCharactersDefeated(false);
