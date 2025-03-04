@@ -38,80 +38,6 @@ export default function Game() {
     height: 54,
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    setToken(token);
-    if (!token) {
-      router.push("/login");
-      localStorage.removeItem("authToken");
-      return;
-    } else {
-      setIsLoggedIn(true);
-    }
-
-    const selectStage = localStorage.getItem("selectStage");
-    setStage(`Stage ${selectStage}`);
-    const instanceID = localStorage.getItem("instanceID");
-    setInstanceID(instanceID);
-
-    localStorage.setItem("rewardCoins", 0);
-    localStorage.setItem("rewardXP", 0);
-
-    const fetchUserRole = async () => {
-      try {
-        const response = await fetch("http://localhost:1337/api/users/me?populate=*", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        if (!response.ok) throw new Error("Failed to fetch user data");
-
-        const userData = await response.json();
-        setUserData(userData);
-        localStorage.setItem("userData", JSON.stringify(userData));
-        setUserCharacters(userData.character);
-        setUserRole(userData.role.name);
-
-        /////////////
-        setCharactersDamage((Number(userData.character.Value_Level) * 2) + 1);
-        setCharactersMaxHP((Number(userData.character.Value_Level) * 10) + 5);
-        setCharactersHP((Number(userData.character.Value_Level) * 10) + 5);
-        setIsCharactersDefeated(false);
-        /////////////
-      } catch (error) {
-        console.error("Error fetching user role:", error);
-        setUserRole("NULL");
-      }
-    };
-    const fetchMonsterData = async () => {
-      try {
-        const selectStage = localStorage.getItem("selectStage");
-        const response = await fetch(`http://localhost:1337/api/monster-lists?filters[Stage_ID][$eq]=${selectStage}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!response.ok) throw new Error("Failed to fetch monster data");
-
-        const data = await response.json();
-        const monsters = data.data[0].MonsterData;
-
-        setMonsterList(monsters);
-        if (monsters.length > 0) {
-          setMonsterHP(monsters[0].health);
-        }
-      } catch (error) {
-        console.error("Error fetching monster data:", error);
-      }
-    };
-
-    fetchMonsterData();
-    fetchUserRole();
-
-    if (!selectStage || !instanceID) {
-      setShowModalErrorInstance(true);
-      return;
-    };
-
-  }, []);
-
   const handleReturn = async (instanceID) => {
     try {
       const fetchResponse = await fetch("http://localhost:1337/api/active-stage-list", {
@@ -256,6 +182,91 @@ export default function Game() {
       }
     }
   };
+
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    setToken(token);
+    if (!token) {
+      router.push("/login");
+      localStorage.removeItem("authToken");
+      return;
+    } else {
+      setIsLoggedIn(true);
+    }
+
+    const selectStage = localStorage.getItem("selectStage");
+    setStage(`Stage ${selectStage}`);
+    const instanceID = localStorage.getItem("instanceID");
+    setInstanceID(instanceID);
+
+    localStorage.setItem("rewardCoins", 0);
+    localStorage.setItem("rewardXP", 0);
+
+    const fetchUserRole = async () => {
+      try {
+        const response = await fetch("http://localhost:1337/api/users/me?populate=*", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        if (!response.ok) throw new Error("Failed to fetch user data");
+
+        const userData = await response.json();
+        setUserData(userData);
+        localStorage.setItem("userData", JSON.stringify(userData));
+        setUserCharacters(userData.character);
+        setUserRole(userData.role.name);
+
+        /////////////
+        setCharactersDamage((Number(userData.character.Value_Level) * 2) + 1);
+        setCharactersMaxHP((Number(userData.character.Value_Level) * 10) + 5);
+        setCharactersHP((Number(userData.character.Value_Level) * 10) + 5);
+        setIsCharactersDefeated(false);
+        /////////////
+      } catch (error) {
+        console.error("Error fetching user role:", error);
+        setUserRole("NULL");
+      }
+    };
+    const fetchMonsterData = async () => {
+      try {
+        const selectStage = localStorage.getItem("selectStage");
+        const response = await fetch(`http://localhost:1337/api/monster-lists?filters[Stage_ID][$eq]=${selectStage}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!response.ok) throw new Error("Failed to fetch monster data");
+
+        const data = await response.json();
+        const monsters = data.data[0].MonsterData;
+
+        setMonsterList(monsters);
+        if (monsters.length > 0) {
+          setMonsterHP(monsters[0].health);
+        }
+      } catch (error) {
+        console.error("Error fetching monster data:", error);
+      }
+    };
+
+    fetchMonsterData();
+    fetchUserRole();
+
+    if (!selectStage || !instanceID) {
+      setShowModalErrorInstance(true);
+      return;
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === "e") {
+        console.log(`You pressed: ${event.key.toUpperCase()}`);
+      };
+      if (event.key === "q") {
+        console.log(`You pressed: ${event.key.toUpperCase()}`);
+      };
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+  }, []);
 
   return (
     <>
