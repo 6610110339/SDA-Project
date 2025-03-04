@@ -4,7 +4,7 @@ import { useEffect, useState, } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal } from "react-bootstrap";
-import { Flex } from 'antd';
+import { Flex, Card } from 'antd';
 import "../globals.css";
 
 export default function Game() {
@@ -65,8 +65,8 @@ export default function Game() {
       localStorage.removeItem("selectStage");
       localStorage.removeItem("instanceID");
       localStorage.removeItem("userData");
-      localStorage.removeItem("rewardCoins", 0);
-      localStorage.removeItem("rewardXP", 0);
+      localStorage.removeItem("rewardCoins");
+      localStorage.removeItem("rewardXP");
       router.push("/stagelist");
     } catch (error) {
       console.error("Error removing active stage:", error);
@@ -201,6 +201,8 @@ export default function Game() {
 
     localStorage.setItem("rewardCoins", 0);
     localStorage.setItem("rewardXP", 0);
+    localStorage.setItem("showStatsCharacter", false);
+    localStorage.setItem("showStatsMonster", false);
 
     const fetchUserRole = async () => {
       try {
@@ -330,7 +332,7 @@ export default function Game() {
                             <h3 style={{ fontSize: "24px", color: "black" }}>Character Defeated!</h3>
                           ) : (
                             <>
-                              <h2 style={{ fontSize: "24px", color: "black" }}>Your Character (Lv. {userData?.character.Value_Level ?? "???"})</h2>
+                              <h2 style={{ fontSize: "24px", color: "black" }}>{userData?.username}</h2>
                               <img
                                 className={isCharacterHit ? "monster-hit" : ""}
                                 src={`/Characters/SwordMan.png`}
@@ -350,6 +352,19 @@ export default function Game() {
                               </div>
                             </>
                           )}
+                          <Card
+                            title={`${userData?.character.Class_Name} (Lv. ${userData?.character.Value_Level})`}
+                            variant="borderless"
+                            style={{
+                              width: "100%",
+                              backgroundColor: "rgba(255, 255, 255, 0.5)"
+                            }}
+                          >
+                            <p style={{ height: "5px" }}><strong style={{ color: "blue" }}>💠 Points: 0</strong></p>
+                            <p style={{ height: "5px" }}><strong style={{ color: "darkred" }}>💥 Damage: {charactersDamage ?? 0}</strong></p>
+                            <p style={{ height: "5px" }}><strong style={{ color: "red" }}>❤️️ Health: {charactersHP ?? 0}/{charactersMaxHP ?? 0}</strong></p>
+                            <p style={{ height: "5px" }}><strong style={{ color: "green" }}>🛡️ Defense: 0</strong></p>
+                          </Card>
                         </div>
                       ) : (
                         ""
@@ -371,7 +386,7 @@ export default function Game() {
                             <h3 style={{ fontSize: "24px", color: "black" }}>Monster Defeated! Prepare for next wave!</h3>
                           ) : (
                             <>
-                              <h2 style={{ fontSize: "24px", color: "black" }}>{monsterList[currentMonsterIndex].name} (Lv. {monsterList[currentMonsterIndex].level})</h2>
+                              <h2 style={{ fontSize: "24px", color: "black" }}>{monsterList[currentMonsterIndex].name}</h2>
                               <img
                                 className={isMonsterHit ? "monster-hit" : ""}
                                 src={`/Monster/${monsterList[currentMonsterIndex].id}.png`}
@@ -389,6 +404,18 @@ export default function Game() {
                                   </span>
                                 </div>
                               </div>
+                              <Card
+                                title={`${monsterList[currentMonsterIndex].name} (Lv. ${monsterList[currentMonsterIndex].level})`}
+                                variant="borderless"
+                                style={{
+                                  width: "100%",
+                                  backgroundColor: "rgba(255, 255, 255, 0.5)"
+                                }}
+                              >
+                                <p style={{ height: "5px" }}><strong style={{ color: "darkred" }}>💥 Damage: {monsterList[currentMonsterIndex]?.damage ?? 0}</strong></p>
+                                <p style={{ height: "5px" }}><strong style={{ color: "red" }}>❤️️ Health: {monsterHP ?? 0}/{monsterList[currentMonsterIndex]?.health ?? 0}</strong></p>
+                                <p style={{ height: "5px" }}><strong style={{ color: "green" }}>🛡️ Defense: {monsterList[currentMonsterIndex]?.defense ?? 0}</strong></p>
+                              </Card>
                             </>
                           )}
                         </div>
