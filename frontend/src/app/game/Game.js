@@ -223,11 +223,25 @@ export default function Game() {
   useEffect(() => {
     setTurnCount(turnCount + 1);
     if (currentTurn == "☠️ Monster" && (!isEnded)) {
-      console.log("Effect: ", monsterEffect)
-      const attackTimeout = setTimeout(() => {
-        handleMonsterAttack();
-      }, 1000);
-      return () => clearTimeout(attackTimeout);
+      if (monsterEffect.length > 1) {
+        const effectTimeout = setTimeout(() => {
+          console.log("BURN")
+        }, 1000);
+        const attackTimeout = setTimeout(() => {
+          handleMonsterAttack();
+        }, 2000);
+        return () => {
+          clearTimeout(effectTimeout);
+          clearTimeout(attackTimeout);
+        }
+      } else {
+        const attackTimeout = setTimeout(() => {
+          handleMonsterAttack();
+        }, 1000);
+        return () => {
+          clearTimeout(attackTimeout);
+        }
+      }
     }
   }, [currentTurn, isMonsterLoaded]);
 
