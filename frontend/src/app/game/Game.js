@@ -333,17 +333,29 @@ export default function Game() {
                           backgroundColor: "rgba(255, 255, 255, 0.5)"
                         }}
                       >
-                        <p style={{ height: "20px" }}><strong style={{ color: "blue" }}>💠 Points: {charactersPoint ?? 0}</strong></p>
-                        {currentTurn === "👤 Player" && !isEnded ? (
-                          <div style={{ bottom: "20px", display: "flex", gap: "15px" }}>
-                            <Tooltip title="Attack the enemy & +1 💠 Point" color="red">
-                              <button className="btn btn-danger" onClick={() => { handlePlayerAttack() }} style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>⚔️ Attack</button>
-                            </Tooltip>
-                            <Tooltip title="Use Skill on Enemy & Consume 💠 Point" color="blue">
-                              <button className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>🌀 Skill</button>
-                            </Tooltip>
-                          </div>
-                        ) : ("")}
+                        <p style={{ height: "5px" }}><strong style={{ color: "blue" }}>💠 Points: {charactersPoint ?? 0}</strong></p>
+                        <p style={{ height: "20px" }}><strong style={{ color: "blue" }}>🔶 Action:</strong></p>
+                        <div style={{ bottom: "20px", display: "flex", gap: "15px" }}>
+                          <Tooltip title="Attack the enemy & +1 💠 Point" color="red">
+                            <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect" onClick={() => { if (currentTurn === "👤 Player" && !isEnded) handlePlayerAttack() }}
+                              style={{
+                                padding: "10px 20px",
+                                fontSize: "18px",
+                                borderRadius: "10px",
+                                backgroundColor: currentTurn === "👤 Player" ? ("red") : ("grey")
+                              }}>
+                              ⚔️ Attack</button>
+                          </Tooltip>
+                          <Tooltip title="Use Skill on Enemy & Consume 💠 Point" color="blue">
+                            <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect" onClick={() => { if (currentTurn === "👤 Player" && !isEnded) handlePlayerAttack() }}
+                              style={{
+                                padding: "10px 20px",
+                                fontSize: "18px",
+                                borderRadius: "10px",
+                                backgroundColor: currentTurn === "👤 Player" ? ("blue") : ("grey")
+                              }}>
+                              🌀 Skill</button></Tooltip>
+                        </div>
                       </Card>
                     </div>
                   ) : i === 1 ? (

@@ -45,19 +45,19 @@ a {
 
   0%,
   100% {
-      transform: translateX(0);
+    transform: translateX(0);
   }
 
   25% {
-      transform: translateX(-5px);
+    transform: translateX(-5px);
   }
 
   50% {
-      transform: translateX(5px);
+    transform: translateX(5px);
   }
 
   75% {
-      transform: translateX(-5px);
+    transform: translateX(-5px);
   }
 }
 
@@ -65,14 +65,23 @@ a {
 
   0%,
   100% {
-      filter: brightness(1);
+    filter: brightness(1);
   }
 
   50% {
-      filter: brightness(2);
+    filter: brightness(2);
   }
 }
 
 .monster-hit {
   animation: shake 0.3s ease-in-out, flash 0.3s ease-in-out;
+}
+
+.hover-effect {
+  transition: transform 0.4s ease-in-out, filter 0.4s ease-in-out;
+}
+
+.hover-effect:hover {
+  transform: scale(1.1);
+  filter: brightness(1.2);
 }
