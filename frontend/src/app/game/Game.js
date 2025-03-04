@@ -174,7 +174,7 @@ export default function Game() {
     const healAmount = Number((charactersMaxHP * 15) / 100).toFixed(0)
     setCharactersPoint(charactersPoint - 2);
     setCharactersHP(charactersHP + Number(healAmount));
-    if (charactersHP > charactersMaxHP) setCharactersHP(charactersMaxHP);
+    if (charactersHP >= charactersMaxHP) setCharactersHP(charactersMaxHP);
     setIsCharacterHit(true);
     setTimeout(() => {
       setIsCharacterHit(false);
@@ -185,8 +185,11 @@ export default function Game() {
 
   const handleMonsterAttack = () => {
     const player_hurt = new Audio("/sounds/player_hurt.mp3");
+    const characterDefense = Number(charactersDefense)
+    const damageReduction = Number((characterDefense / (characterDefense + 100)) * 100).toFixed(0)
+    const damageValue = ((monsterList[currentMonsterIndex].damage * (100 - Number(damageReduction))) / 100).toFixed(0)
     if (charactersHP >= 0) {
-      setCharactersHP(charactersHP - monsterList[currentMonsterIndex].damage);
+      setCharactersHP(charactersHP - damageValue);
       setIsCharacterHit(true);
       setTimeout(() => {
         setIsCharacterHit(false);
@@ -242,11 +245,13 @@ export default function Game() {
         localStorage.setItem("userData", JSON.stringify(userData));
         setUserCharacters(userData.character);
         setUserRole(userData.role.name);
+        setUserUpgrades(userData.upgrade);
 
         /////////////
-        setCharactersDamage((Number(userData.character.Value_Level) * 1) + 1);
-        setCharactersMaxHP((Number(userData.character.Value_Level) * 10) + 5);
-        setCharactersHP((Number(userData.character.Value_Level) * 10) + 5);
+        setCharactersDamage((userData.upgrade.Upgrade_Damage * 1) + (Number(userData.character.Value_Level) * 1) + 1);
+        setCharactersMaxHP((userData.upgrade.Upgrade_Health * 2) + (Number(userData.character.Value_Level) * 10) + 5);
+        setCharactersHP((userData.upgrade.Upgrade_Health * 2) + (Number(userData.character.Value_Level) * 10) + 5);
+        setCharactersDefense((userData.upgrade.Upgrade_Defense * 1));
         setIsCharactersDefeated(false);
         /////////////
       } catch (error) {
@@ -431,7 +436,7 @@ export default function Game() {
                             >
                               <p style={{ height: "5px" }}><strong style={{ color: "darkred" }}>💥 Damage: {charactersDamage ?? 0}</strong></p>
                               <p style={{ height: "5px" }}><strong style={{ color: "red" }}>❤️️ Health: {charactersHP ?? 0}/{charactersMaxHP ?? 0}</strong></p>
-                              <p style={{ height: "5px" }}><strong style={{ color: "green" }}>🛡️ Defense: 0</strong></p>
+                              <p style={{ height: "5px" }}><strong style={{ color: "green" }}>🛡️ Defense: {charactersDefense}</strong></p>
                             </Card>
                           </div>
                         ) : (
