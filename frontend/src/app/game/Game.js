@@ -4,7 +4,7 @@ import { useEffect, useState, } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal } from "react-bootstrap";
-import { Flex, Card } from 'antd';
+import { Flex, Card, Tooltip } from 'antd';
 import "../globals.css";
 
 export default function Game() {
@@ -206,8 +206,6 @@ export default function Game() {
 
     localStorage.setItem("rewardCoins", 0);
     localStorage.setItem("rewardXP", 0);
-    localStorage.setItem("showStatsCharacter", false);
-    localStorage.setItem("showStatsMonster", false);
 
     const fetchUserRole = async () => {
       try {
@@ -327,18 +325,25 @@ export default function Game() {
                 >
                   {i === 0 ? (
                     <div>
-                      <h2 style={{ fontSize: "16px", color: "black" }}>🔹 Current Turn: {currentTurn}</h2>
                       <Card
-                        title={`${monsterList[currentMonsterIndex].name} (Lv. ${monsterList[currentMonsterIndex].level})`}
+                        title={`🔹 Current Turn: ${currentTurn}`}
                         variant="borderless"
                         style={{
                           width: "100%",
                           backgroundColor: "rgba(255, 255, 255, 0.5)"
                         }}
                       >
-                        <p style={{ height: "5px" }}><strong style={{ color: "darkred" }}>💥 Damage: {monsterList[currentMonsterIndex]?.damage ?? 0}</strong></p>
-                        <p style={{ height: "5px" }}><strong style={{ color: "red" }}>❤️️ Health: {monsterHP ?? 0}/{monsterList[currentMonsterIndex]?.health ?? 0}</strong></p>
-                        <p style={{ height: "5px" }}><strong style={{ color: "green" }}>🛡️ Defense: {monsterList[currentMonsterIndex]?.defense ?? 0}</strong></p>
+                        <p style={{ height: "20px" }}><strong style={{ color: "blue" }}>💠 Points: {charactersPoint ?? 0}</strong></p>
+                        {currentTurn === "👤 Player" && !isEnded ? (
+                          <div style={{ bottom: "20px", display: "flex", gap: "15px" }}>
+                            <Tooltip title="Attack the enemy & +1 💠 Point" color="red">
+                              <button className="btn btn-danger" onClick={() => { handlePlayerAttack() }} style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>⚔️ Attack</button>
+                            </Tooltip>
+                            <Tooltip title="Use Skill on Enemy & Consume 💠 Point" color="blue">
+                              <button className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>🌀 Skill</button>
+                            </Tooltip>
+                          </div>
+                        ) : ("")}
                       </Card>
                     </div>
                   ) : i === 1 ? (
@@ -377,7 +382,6 @@ export default function Game() {
                               backgroundColor: "rgba(255, 255, 255, 0.5)"
                             }}
                           >
-                            <p style={{ height: "5px" }}><strong style={{ color: "blue" }}>💠 Points: {charactersPoint ?? 0}</strong></p>
                             <p style={{ height: "5px" }}><strong style={{ color: "darkred" }}>💥 Damage: {charactersDamage ?? 0}</strong></p>
                             <p style={{ height: "5px" }}><strong style={{ color: "red" }}>❤️️ Health: {charactersHP ?? 0}/{charactersMaxHP ?? 0}</strong></p>
                             <p style={{ height: "5px" }}><strong style={{ color: "green" }}>🛡️ Defense: 0</strong></p>
@@ -386,12 +390,6 @@ export default function Game() {
                       ) : (
                         ""
                       )}
-                      {currentTurn === "👤 Player" && !isEnded ? (
-                        <div style={{ position: "absolute", bottom: "20px", display: "flex", gap: "15px" }}>
-                          <button className="btn btn-danger" onClick={() => { handlePlayerAttack() }} style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>⚔️ Attack</button>
-                          <button className="btn btn-primary" style={{ padding: "10px 20px", fontSize: "18px", borderRadius: "10px" }}>🌀 Skill</button>
-                        </div>
-                      ) : ("")}
                     </div>
                   ) : i === 2 ? (
                     ""
