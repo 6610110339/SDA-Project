@@ -358,7 +358,7 @@ export default function Game() {
                           <p style={{ height: "5px" }}><strong style={{ color: "blue" }}>💠 Points: {charactersPoint ?? 0}</strong></p>
                           <p style={{ height: "20px" }}><strong style={{ color: "blue" }}>🔶 Action:</strong></p>
                           <div style={{ bottom: "20px", display: "flex", gap: "15px" }}>
-                            <Tooltip title="Attack the enemy & Gain 1 💠 Point" color="red">
+                            <Tooltip title="Attack the enemy & Gain 1 💠 Point" color="red" placement="bottom">
                               <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect"
                                 onClick={() => { if (currentTurn === "👤 Player" && !isEnded) handlePlayerAttack() }}
                                 style={{
@@ -369,7 +369,7 @@ export default function Game() {
                                 }}>
                                 ⚔️ Attack</button>
                             </Tooltip>
-                            <Tooltip title="Use ??? 💠 Point to cast spell on enemy" color="blue">
+                            <Tooltip title="Use ??? 💠 Point to cast spell on enemy" color="blue" placement="bottom">
                               <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect"
                                 onClick={() => { if (currentTurn === "👤 Player" && !isEnded) handlePlayerAttack() }}
                                 style={{
@@ -380,7 +380,7 @@ export default function Game() {
                                 }}>
                                 🌀 Skill</button>
                             </Tooltip>
-                            <Tooltip title="Use 2 💠 Point to Heal 15% of MaxHP" color="green">
+                            <Tooltip title="Use 2 💠 Point to Heal 15% of MaxHP" color="green" placement="bottom">
                               <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect"
                                 onClick={() => {
                                   if (currentTurn === "👤 Player" && !isEnded) {

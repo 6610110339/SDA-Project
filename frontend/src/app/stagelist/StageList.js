@@ -73,6 +73,7 @@ export default function Admin() {
 
   const stages_map2 = [
     { key: '6', name: "Stage 6", difficulty: "Normal", color: "#f5b041", level: 16 },
+    { key: '7', name: "Stage 7", difficulty: "Normal", color: "#f5b041", level: 20 },
   ];
 
   const handleAttack = async (selectedStage) => {
