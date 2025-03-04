@@ -249,9 +249,9 @@ export default function Game() {
 
         /////////////
         setCharactersDamage((userData.upgrade.Upgrade_Damage * 1) + (Number(userData.character.Value_Level) * 1) + 1);
-        setCharactersMaxHP((userData.upgrade.Upgrade_Health * 2) + (Number(userData.character.Value_Level) * 10) + 5);
-        setCharactersHP((userData.upgrade.Upgrade_Health * 2) + (Number(userData.character.Value_Level) * 10) + 5);
-        setCharactersDefense((userData.upgrade.Upgrade_Defense * 1));
+        setCharactersMaxHP((userData.upgrade.Upgrade_Health * 2) + (Number(userData.character.Value_Level) * 15) + 5);
+        setCharactersHP((userData.upgrade.Upgrade_Health * 2) + (Number(userData.character.Value_Level) * 15) + 5);
+        setCharactersDefense((userData.upgrade.Upgrade_Defense * 1) + (Number(userData.character.Value_Level) * 1) + 1);
         setIsCharactersDefeated(false);
         /////////////
       } catch (error) {
