@@ -16,6 +16,7 @@ export default function MainMenu() {
   const [token, setToken] = useState(null);
   const [userCharacters, setUserCharacters] = useState(null);
   const [showClassPopup, setShowClassPopup] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -44,9 +45,12 @@ export default function MainMenu() {
         setUserCharacters(userData.character);
         setUserRole(userData.role.name || "NULL");
 
-        if (!userData.class) {
-          setShowClassPopup(true); // แสดงป็อปอัพ
-        }
+        if (!userData.character) {
+          setShowClassPopup(true);
+          return;
+        };
+
+        setIsLoading(false);
 
       } catch (error) {
         console.error("Error fetching user role:", error);
@@ -85,26 +89,28 @@ export default function MainMenu() {
 
       <div className="menu-card">
         <h1 className="menu-title">Welcome to RPG Online</h1>
-        <div className="menu-buttons">
-          <Button
-            variant="success"
-            size="lg"
-            onClick={() => router.push("/stagelist")}
-            className="mb-3 fw-bold"
-          >
-            Start Game
-          </Button>
-          {userRole === "Admin" && (
+        {isLoading ? ("") : (
+          <div className="menu-buttons">
             <Button
-              variant="warning"
+              variant="success"
               size="lg"
-              onClick={() => router.push("/admin")}
+              onClick={() => router.push("/stagelist")}
               className="mb-3 fw-bold"
             >
-              Admin Panel
+              Start Game
             </Button>
-          )}
-        </div>
+            {userRole === "Admin" && (
+              <Button
+                variant="warning"
+                size="lg"
+                onClick={() => router.push("/admin")}
+                className="mb-3 fw-bold"
+              >
+                Admin Panel
+              </Button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Force Class Modal */}
@@ -133,7 +139,7 @@ export default function MainMenu() {
         </Modal.Body>
       </Modal>
 
-      <Modal show={showClassPopup} onHide={() => setShowClassPopup(false)} centered>
+      <Modal show={showClassPopup} backdrop="static" keyboard={false} centered>
         <Modal.Header>
           <Modal.Title>Please select your class</Modal.Title>
         </Modal.Header>

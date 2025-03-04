@@ -21,6 +21,7 @@ export default function Game() {
   const [instanceID, setInstanceID] = useState(null);
 
   const [currentTurn, setCurrentTurn] = useState("👤 Player");
+  const [charactersPoint, setCharactersPoint] = useState(1);
   const [charactersDamage, setCharactersDamage] = useState(20);
   const [charactersHP, setCharactersHP] = useState(20);
   const [charactersMaxHP, setCharactersMaxHP] = useState(20);
@@ -127,8 +128,12 @@ export default function Game() {
 
   const handlePlayerAttack = () => {
     const monster_hurt = new Audio("/sounds/monster_hurt.mp3");
+    const monsterDefense = Number(monsterList[currentMonsterIndex].defense)
+    const damageReduction = Number((monsterDefense / (monsterDefense + 100)) * 100).toFixed(0)
+    const damageValue = ((charactersDamage * (100 - Number(damageReduction))) / 100).toFixed(0)
+    setCharactersPoint(charactersPoint + 1);
     if (monsterHP >= 0) {
-      setMonsterHP(monsterHP - charactersDamage);
+      setMonsterHP(monsterHP - Number(damageValue));
       setIsMonsterHit(true);
       setTimeout(() => {
         setIsMonsterHit(false);
@@ -323,6 +328,18 @@ export default function Game() {
                   {i === 0 ? (
                     <div>
                       <h2 style={{ fontSize: "16px", color: "black" }}>🔹 Current Turn: {currentTurn}</h2>
+                      <Card
+                        title={`${monsterList[currentMonsterIndex].name} (Lv. ${monsterList[currentMonsterIndex].level})`}
+                        variant="borderless"
+                        style={{
+                          width: "100%",
+                          backgroundColor: "rgba(255, 255, 255, 0.5)"
+                        }}
+                      >
+                        <p style={{ height: "5px" }}><strong style={{ color: "darkred" }}>💥 Damage: {monsterList[currentMonsterIndex]?.damage ?? 0}</strong></p>
+                        <p style={{ height: "5px" }}><strong style={{ color: "red" }}>❤️️ Health: {monsterHP ?? 0}/{monsterList[currentMonsterIndex]?.health ?? 0}</strong></p>
+                        <p style={{ height: "5px" }}><strong style={{ color: "green" }}>🛡️ Defense: {monsterList[currentMonsterIndex]?.defense ?? 0}</strong></p>
+                      </Card>
                     </div>
                   ) : i === 1 ? (
                     <div className="battle-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", height: "100vh", color: "white", textAlign: "center", padding: "20px" }}>
@@ -360,7 +377,7 @@ export default function Game() {
                               backgroundColor: "rgba(255, 255, 255, 0.5)"
                             }}
                           >
-                            <p style={{ height: "5px" }}><strong style={{ color: "blue" }}>💠 Points: 0</strong></p>
+                            <p style={{ height: "5px" }}><strong style={{ color: "blue" }}>💠 Points: {charactersPoint ?? 0}</strong></p>
                             <p style={{ height: "5px" }}><strong style={{ color: "darkred" }}>💥 Damage: {charactersDamage ?? 0}</strong></p>
                             <p style={{ height: "5px" }}><strong style={{ color: "red" }}>❤️️ Health: {charactersHP ?? 0}/{charactersMaxHP ?? 0}</strong></p>
                             <p style={{ height: "5px" }}><strong style={{ color: "green" }}>🛡️ Defense: 0</strong></p>
