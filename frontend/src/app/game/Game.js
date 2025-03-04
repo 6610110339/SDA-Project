@@ -4,7 +4,7 @@ import { useEffect, useState, } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal } from "react-bootstrap";
-import { Flex, Card } from 'antd';
+import { Flex } from 'antd';
 import "../globals.css";
 
 export default function Game() {
@@ -19,10 +19,6 @@ export default function Game() {
   const [showModalEnd, setShowModalEnd] = useState(false);
   const [stage, setStage] = useState(null);
   const [instanceID, setInstanceID] = useState(null);
-  const [rewardData, setRewardData] = useState({
-    Value_XP: 0,
-    Value_Coins: 0
-  });
 
   const [currentTurn, setCurrentTurn] = useState("👤 Player");
   const [charactersDamage, setCharactersDamage] = useState(20);
@@ -57,6 +53,9 @@ export default function Game() {
     setStage(`Stage ${selectStage}`);
     const instanceID = localStorage.getItem("instanceID");
     setInstanceID(instanceID);
+
+    localStorage.setItem("rewardCoins", 0);
+    localStorage.setItem("rewardXP", 0);
 
     const fetchUserRole = async () => {
       try {
@@ -140,6 +139,8 @@ export default function Game() {
       localStorage.removeItem("selectStage");
       localStorage.removeItem("instanceID");
       localStorage.removeItem("userData");
+      localStorage.removeItem("rewardCoins", 0);
+      localStorage.removeItem("rewardXP", 0);
       router.push("/stagelist");
     } catch (error) {
       console.error("Error removing active stage:", error);
@@ -148,8 +149,8 @@ export default function Game() {
 
   const handleClaim = async () => {
     try {
-      const rewardXP = rewardData.Value_XP;
-      const rewardCoins = rewardData.Value_Coins;
+      const rewardXP = Number(localStorage.getItem("rewardXP"));
+      const rewardCoins = Number(localStorage.getItem("rewardCoins"));
 
       const userDocumentId = String(userData.documentId);
 
@@ -159,18 +160,25 @@ export default function Game() {
       const data = await response.json();
 
       if (!data.data || data.data.length === 0) {
-        alert("❌ ไม่พบตัวละครของคุณ!");
-        return;
-      }
+        throw new Error("Error!");
+      };
 
       const character = data.data[0];
       const characterId = character.documentId;
 
-      const updatedXP = Number(character.Value_XP + rewardXP);
-      const updatedCoins = Number(character.Value_Coins + rewardCoins);
+      let updatedXP = Number(character.Value_XP + rewardXP);
+      let updatedCoins = Number(character.Value_Coins + rewardCoins);
+      let updatedLevel = Number(character.Value_Level)
+
+      while (updatedXP >= (character.Value_Level * 15)) {
+        updatedLevel = updatedLevel + 1;
+        updatedXP = updatedXP - Number(character.Value_Level * 15)
+      };
+
       const newData = {
         Value_XP: updatedXP,
         Value_Coins: updatedCoins,
+        Value_Level: updatedLevel
       };
 
       const updateResponse = await fetch(`http://localhost:1337/api/characters/${characterId}`, {
@@ -185,9 +193,6 @@ export default function Game() {
       if (!updateResponse.ok) {
         throw new Error("Error!");
       }
-
-      const instanceID = localStorage.getItem("instanceID");
-      handleReturn(instanceID);
 
     } catch (error) {
       console.error("Error claiming reward:", error);
@@ -207,10 +212,10 @@ export default function Game() {
       setCurrentTurn("☠️ Monster")
       if ((monsterHP - charactersDamage) <= 0) {
         setIsMonsterDefeated(true);
-        setRewardData((prevReward) => ({
-          Value_XP: Number(prevReward.Value_XP) + Number(monsterList[currentMonsterIndex].drops.exp),
-          Value_Coins: Number(prevReward.Value_Coins) + Number(monsterList[currentMonsterIndex].drops.coins)
-        }));
+        const rewardCoins = localStorage.getItem("rewardCoins");
+        const rewardXP = localStorage.getItem("rewardXP");
+        localStorage.setItem("rewardCoins", (Number(rewardCoins) + Number(monsterList[currentMonsterIndex].drops.exp)));
+        localStorage.setItem("rewardXP", (Number(rewardXP) + Number(monsterList[currentMonsterIndex].drops.coins)));
         if (currentMonsterIndex < monsterList.length - 1) {
           setTimeout(() => {
             setIsMonsterDefeated(false);
@@ -220,6 +225,7 @@ export default function Game() {
         } else {
           setIsEnded(true);
           setShowModalEnd(true);
+          handleClaim();
           return;
         }
       }
@@ -396,9 +402,9 @@ export default function Game() {
         </Modal.Header>
         <Modal.Body style={{ textAlign: "center", justifyContent: "center" }}>
           <h4>= Stage Rewards =</h4>
-          <h5>🪙 Coins: {Number(rewardData.Value_Coins)}</h5>
-          <h5>✨ XP: {Number(rewardData.Value_XP)}</h5>
-          <Button className="w-100" variant="primary" onClick={() => handleClaim()}>
+          <h5>🪙 Coins: {Number(localStorage.getItem("rewardCoins"))}</h5>
+          <h5>✨ XP: {Number(localStorage.getItem("rewardXP"))}</h5>
+          <Button className="w-100" variant="primary" onClick={() => handleReturn(instanceID)}>
             Claim and return
           </Button>
         </Modal.Body>
