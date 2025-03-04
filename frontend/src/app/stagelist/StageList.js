@@ -16,6 +16,8 @@ export default function Admin() {
   const [token, setToken] = useState(null);
   const [userCharacters, setUserCharacters] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [showClassPopup, setShowClassPopup] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [selectedStage, setSelectedStage] = useState(null);
 
   useEffect(() => {
@@ -44,6 +46,14 @@ export default function Admin() {
         localStorage.setItem("userData", JSON.stringify(userData));
         setUserCharacters(userData.character);
         setUserRole(userData.role.name);
+
+        if (!userData.character) {
+          setShowClassPopup(true);
+          return;
+        };
+
+        setIsLoading(false);
+
       } catch (error) {
         console.error("Error fetching user role:", error);
         setUserRole("NULL");
@@ -130,19 +140,21 @@ export default function Admin() {
       </Navbar>
 
       <div style={{ display: "flex", justifyContent: "center", padding: "80px 20px", minHeight: "100vh", backgroundImage: "url('/bg_stagelist.png')", backgroundSize: "cover", backgroundPosition: "center", backgroundRepeat: "no-repeat", backgroundAttachment: "fixed" }}>
-        <div style={{ width: "100%", maxWidth: "700px", backgroundColor: "rgba(255, 255, 255, 0.9)", padding: "20px", borderRadius: "1rem" }}>
-          <ListGroup className="shadow-lg rounded-4 overflow-hidden">
-            <ListGroup.Item className="bg-primary text-white fw-bold fs-5">🌳 Map 1 - Forest</ListGroup.Item>
-            <Collapse items={stages.map(stage => ({
-              key: stage.key,
-              label: <div><p>{stage.name}</p><Tag color={stage.color}>{stage.difficulty}</Tag></div>,
-              children: <>
-                <p>Recommend Level: {stage.level}</p>
-                <button type="button" className="btn btn-outline-danger" onClick={() => { setSelectedStage(stage); setModalOpen(true); }}>Attack</button>
-              </>
-            }))} />
-          </ListGroup>
-        </div>
+        {isLoading ? ("") : (
+          <div style={{ width: "100%", maxWidth: "700px", backgroundColor: "rgba(255, 255, 255, 0.9)", padding: "20px", borderRadius: "1rem" }}>
+            <ListGroup className="shadow-lg rounded-4 overflow-hidden">
+              <ListGroup.Item className="bg-primary text-white fw-bold fs-5">🌳 Map 1 - Forest</ListGroup.Item>
+              <Collapse items={stages.map(stage => ({
+                key: stage.key,
+                label: <div><p>{stage.name}</p><Tag color={stage.color}>{stage.difficulty}</Tag></div>,
+                children: <>
+                  <p>Recommend Level: {stage.level}</p>
+                  <button type="button" className="btn btn-outline-danger" onClick={() => { setSelectedStage(stage); setModalOpen(true); }}>Attack</button>
+                </>
+              }))} />
+            </ListGroup>
+          </div>
+        )}
       </div>
 
       <Modal show={modalOpen} onHide={() => setModalOpen(false)} centered>
@@ -154,6 +166,18 @@ export default function Admin() {
           <div>
             <button type="button" className="btn btn-outline-danger" onClick={() => { handleAttack(selectedStage?.key) }}>Attack</button>
           </div>
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={showClassPopup} backdrop="static" keyboard={false} centered>
+        <Modal.Header>
+          <Modal.Title>Please select your class</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>You need to select a class before starting the game.</p>
+          <Button variant="primary" onClick={() => router.push('/select-class')}>
+            Select Class
+          </Button>
         </Modal.Body>
       </Modal>
     </>

@@ -43,7 +43,7 @@ export default function MainMenu() {
         setUserData(userData);
         localStorage.setItem("userData", JSON.stringify(userData));
         setUserCharacters(userData.character);
-        setUserRole(userData.role.name || "NULL");
+        setUserRole(userData.role.name);
 
         if (!userData.character) {
           setShowClassPopup(true);
@@ -112,19 +112,6 @@ export default function MainMenu() {
           </div>
         )}
       </div>
-
-      {/* Force Class Modal */}
-      <Modal show={showModalLogout} onHide={() => setShowModalLogout(false)} centered>
-        <Modal.Header>
-          <Modal.Title>Are you sure?</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <div className="d-flex gap-2">
-            <Button className="w-50" variant="secondary" onClick={() => setShowModalLogout(false)}>Cancel</Button>
-            <Button className="w-50" variant="danger" onClick={() => buttonLogout()}>Logout</Button>
-          </div>
-        </Modal.Body>
-      </Modal>
 
       {/* Logout Modal */}
       <Modal show={showModalLogout} onHide={() => setShowModalLogout(false)} centered>

@@ -33,6 +33,7 @@ export default function Game() {
   const [isMonsterHit, setIsMonsterHit] = useState(false);
   const [isCharacterHit, setIsCharacterHit] = useState(false);
   const [isEnded, setIsEnded] = useState(false);
+  const [isUnknown, setIsUnknown] = useState(false);
 
   const baseStyle = {
     width: '100%',
@@ -168,19 +169,16 @@ export default function Game() {
 
   const handlePlayerHeal = () => {
     const player_heal = new Audio("/sounds/player_heal.mp3");
-    const healAmount = Number((charactersMaxHP * 25) / 100).toFixed(0)
+    const healAmount = Number((charactersMaxHP * 15) / 100).toFixed(0)
     setCharactersPoint(charactersPoint - 2);
     setCharactersHP(charactersHP + Number(healAmount));
+    if (charactersHP > charactersMaxHP) setCharactersHP(charactersMaxHP);
     setIsCharacterHit(true);
     setTimeout(() => {
       setIsCharacterHit(false);
     }, 300);
     player_heal.volume = 0.25
     player_heal.play()
-    setCurrentTurn("☠️ Monster")
-    setTimeout(() => {
-      handleMonsterAttack();
-    }, 1000)
   };
 
   const handleMonsterAttack = () => {
@@ -220,6 +218,11 @@ export default function Game() {
     setStage(`Stage ${selectStage}`);
     const instanceID = localStorage.getItem("instanceID");
     setInstanceID(instanceID);
+    if (!selectStage || !instanceID) {
+      setIsUnknown(true);
+      setShowModalErrorInstance(true);
+      return;
+    };
 
     localStorage.setItem("rewardCoins", 0);
     localStorage.setItem("rewardXP", 0);
@@ -272,11 +275,6 @@ export default function Game() {
     fetchMonsterData();
     fetchUserRole();
 
-    if (!selectStage || !instanceID) {
-      setShowModalErrorInstance(true);
-      return;
-    };
-
     const handleKeyDown = (event) => {
       if (event.key === "e") {
         console.log(`You pressed: ${event.key.toUpperCase()}`);
@@ -326,172 +324,173 @@ export default function Game() {
             padding: "20px",
             borderRadius: "1rem",
           }}>
-
-          <Flex gap="middle" vertical>
-            <Flex direction="row">
-              {Array.from({
-                length: 4,
-              }).map((_, i) => (
-                <div
-                  key={i}
-                  data-index={i}
-                  style={{
-                    ...baseStyle,
-                    backgroundColor: i % 2 ? 'rgb(255, 255, 255, 0.0)' : 'rgba(0, 0, 0, 0.0)',
-                  }}
-                >
-                  {i === 0 ? (
-                    <div>
-                      <Card
-                        title={`🔹 Current Turn: ${currentTurn}`}
-                        variant="borderless"
-                        style={{
-                          width: "100%",
-                          backgroundColor: "rgba(255, 255, 255, 0.5)"
-                        }}
-                      >
-                        <p style={{ height: "5px" }}><strong style={{ color: "blue" }}>💠 Points: {charactersPoint ?? 0}</strong></p>
-                        <p style={{ height: "20px" }}><strong style={{ color: "blue" }}>🔶 Action:</strong></p>
-                        <div style={{ bottom: "20px", display: "flex", gap: "15px" }}>
-                          <Tooltip title="Attack the enemy & +1 💠 Point" color="red">
-                            <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect"
-                              onClick={() => { if (currentTurn === "👤 Player" && !isEnded) handlePlayerAttack() }}
-                              style={{
-                                padding: "10px 20px",
-                                fontSize: "18px",
-                                borderRadius: "10px",
-                                backgroundColor: currentTurn === "👤 Player" ? ("red") : ("grey")
-                              }}>
-                              ⚔️ Attack</button>
-                          </Tooltip>
-                          <Tooltip title="Use Skill on Enemy & Consume 💠 Point" color="blue">
-                            <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect"
-                              onClick={() => { if (currentTurn === "👤 Player" && !isEnded) handlePlayerAttack() }}
-                              style={{
-                                padding: "10px 20px",
-                                fontSize: "18px",
-                                borderRadius: "10px",
-                                backgroundColor: currentTurn === "👤 Player" ? ("blue") : ("grey")
-                              }}>
-                              🌀 Skill</button>
-                          </Tooltip>
-                          <Tooltip title="Use 2 💠 Point to Heal 25% of MaxHP" color="green">
-                            <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect"
-                              onClick={() => {
-                                if (currentTurn === "👤 Player" && !isEnded) {
-                                  if (charactersPoint >= 2) handlePlayerHeal()
-                                }
-                              }}
-                              style={{
-                                padding: "10px 20px",
-                                fontSize: "18px",
-                                borderRadius: "10px",
-                                backgroundColor: currentTurn === "👤 Player" ? ("lime") : ("grey")
-                              }}>
-                              💊 Heal</button>
-                          </Tooltip>
-                        </div>
-                      </Card>
-                    </div>
-                  ) : i === 1 ? (
-                    <div className="battle-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", height: "100vh", color: "white", textAlign: "center", padding: "20px" }}>
-                      {charactersHP >= 0 ? (
-                        <div style={{ textAlign: "center" }}>
-                          {isCharactersDefeated ? (
-                            <h3 style={{ fontSize: "24px", color: "black" }}>Character Defeated!</h3>
-                          ) : (
-                            <>
-                              <h2 style={{ fontSize: "24px", color: "black" }}>{userData?.username}</h2>
-                              <img
-                                className={isCharacterHit ? "monster-hit" : ""}
-                                src={`/Characters/SwordMan.png`}
-                                style={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px" }}
-                              />
-                              <div className="progress" style={{ width: "300px", height: "18px", backgroundColor: "#333", borderRadius: "5px", margin: "10px auto", position: "relative" }}>
-                                <div className="progress-bar bg-danger"
-                                  style={{
-                                    width: `${(charactersHP / charactersMaxHP) * 100}%`,
-                                    height: "100%",
-                                    borderRadius: "5px"
-                                  }}>
-                                  <span style={{ fontSize: "14px", position: "absolute", width: "100%", textAlign: "center", fontWeight: "bold" }}>
-                                    {charactersHP} / {charactersMaxHP}
-                                  </span>
-                                </div>
-                              </div>
-                            </>
-                          )}
-                          <Card
-                            title={`${userData?.character.Class_Name} (Lv. ${userData?.character.Value_Level})`}
-                            variant="borderless"
-                            style={{
-                              width: "100%",
-                              backgroundColor: "rgba(255, 255, 255, 0.5)"
-                            }}
-                          >
-                            <p style={{ height: "5px" }}><strong style={{ color: "darkred" }}>💥 Damage: {charactersDamage ?? 0}</strong></p>
-                            <p style={{ height: "5px" }}><strong style={{ color: "red" }}>❤️️ Health: {charactersHP ?? 0}/{charactersMaxHP ?? 0}</strong></p>
-                            <p style={{ height: "5px" }}><strong style={{ color: "green" }}>🛡️ Defense: 0</strong></p>
-                          </Card>
-                        </div>
-                      ) : (
-                        ""
-                      )}
-                    </div>
-                  ) : i === 2 ? (
-                    ""
-                  ) : i === 3 ? (
-                    <div className="battle-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", height: "100vh", color: "white", textAlign: "center", padding: "20px" }}>
-                      {monsterList.length > 0 && (!isEnded || charactersHP <= 0) ? (
-                        <div style={{ textAlign: "center" }}>
-                          {isMonsterDefeated ? (
-                            <h3 style={{ fontSize: "24px", color: "black" }}>Monster Defeated! Prepare for next wave!</h3>
-                          ) : (
-                            <>
-                              <h2 style={{ fontSize: "24px", color: "black" }}>{monsterList[currentMonsterIndex].name}</h2>
-                              <img
-                                className={isMonsterHit ? "monster-hit" : ""}
-                                src={`/Monster/${monsterList[currentMonsterIndex].id}.png`}
-                                style={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px", }}
-                              />
-                              <div className="progress" style={{ width: "300px", height: "18px", backgroundColor: "#333", borderRadius: "5px", margin: "10px auto", position: "relative" }}>
-                                <div className="progress-bar bg-danger"
-                                  style={{
-                                    width: `${(monsterHP / monsterList[currentMonsterIndex]?.health) * 100}%`,
-                                    height: "100%",
-                                    borderRadius: "5px"
-                                  }}>
-                                  <span style={{ fontSize: "14px", position: "absolute", width: "100%", textAlign: "center", fontWeight: "bold" }}>
-                                    {monsterHP} / {monsterList[currentMonsterIndex]?.health}
-                                  </span>
-                                </div>
-                              </div>
-                              <Card
-                                title={`${monsterList[currentMonsterIndex].name} (Lv. ${monsterList[currentMonsterIndex].level})`}
-                                variant="borderless"
+          {isUnknown ? ("") : (
+            <Flex gap="middle" vertical>
+              <Flex direction="row">
+                {Array.from({
+                  length: 4,
+                }).map((_, i) => (
+                  <div
+                    key={i}
+                    data-index={i}
+                    style={{
+                      ...baseStyle,
+                      backgroundColor: i % 2 ? 'rgb(255, 255, 255, 0.0)' : 'rgba(0, 0, 0, 0.0)',
+                    }}
+                  >
+                    {i === 0 ? (
+                      <div>
+                        <Card
+                          title={`🔹 Current Turn: ${currentTurn}`}
+                          variant="borderless"
+                          style={{
+                            width: "100%",
+                            backgroundColor: "rgba(255, 255, 255, 0.5)"
+                          }}
+                        >
+                          <p style={{ height: "5px" }}><strong style={{ color: "blue" }}>💠 Points: {charactersPoint ?? 0}</strong></p>
+                          <p style={{ height: "20px" }}><strong style={{ color: "blue" }}>🔶 Action:</strong></p>
+                          <div style={{ bottom: "20px", display: "flex", gap: "15px" }}>
+                            <Tooltip title="Attack the enemy & Gain 1 💠 Point" color="red">
+                              <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect"
+                                onClick={() => { if (currentTurn === "👤 Player" && !isEnded) handlePlayerAttack() }}
                                 style={{
-                                  width: "100%",
-                                  backgroundColor: "rgba(255, 255, 255, 0.5)"
+                                  padding: "10px 20px",
+                                  fontSize: "18px",
+                                  borderRadius: "10px",
+                                  backgroundColor: currentTurn === "👤 Player" ? ("red") : ("grey")
+                                }}>
+                                ⚔️ Attack</button>
+                            </Tooltip>
+                            <Tooltip title="Use ??? 💠 Point to cast spell on enemy" color="blue">
+                              <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect"
+                                onClick={() => { if (currentTurn === "👤 Player" && !isEnded) handlePlayerAttack() }}
+                                style={{
+                                  padding: "10px 20px",
+                                  fontSize: "18px",
+                                  borderRadius: "10px",
+                                  backgroundColor: currentTurn === "👤 Player" ? ("blue") : ("grey")
+                                }}>
+                                🌀 Skill</button>
+                            </Tooltip>
+                            <Tooltip title="Use 2 💠 Point to Heal 15% of MaxHP" color="green">
+                              <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect"
+                                onClick={() => {
+                                  if (currentTurn === "👤 Player" && !isEnded) {
+                                    if (charactersPoint >= 2) handlePlayerHeal()
+                                  }
                                 }}
-                              >
-                                <p style={{ height: "5px" }}><strong style={{ color: "darkred" }}>💥 Damage: {monsterList[currentMonsterIndex]?.damage ?? 0}</strong></p>
-                                <p style={{ height: "5px" }}><strong style={{ color: "red" }}>❤️️ Health: {monsterHP ?? 0}/{monsterList[currentMonsterIndex]?.health ?? 0}</strong></p>
-                                <p style={{ height: "5px" }}><strong style={{ color: "green" }}>🛡️ Defense: {monsterList[currentMonsterIndex]?.defense ?? 0}</strong></p>
-                              </Card>
-                            </>
-                          )}
-                        </div>
-                      ) : (
-                        ""
-                      )}
-                    </div>
-                  ) : (
-                    ""
-                  )}
-                </div>
-              ))}
+                                style={{
+                                  padding: "10px 20px",
+                                  fontSize: "18px",
+                                  borderRadius: "10px",
+                                  backgroundColor: currentTurn === "👤 Player" ? ("lime") : ("grey")
+                                }}>
+                                💊 Heal</button>
+                            </Tooltip>
+                          </div>
+                        </Card>
+                      </div>
+                    ) : i === 1 ? (
+                      <div className="battle-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", height: "100vh", color: "white", textAlign: "center", padding: "20px" }}>
+                        {charactersHP >= 0 ? (
+                          <div style={{ textAlign: "center" }}>
+                            {isCharactersDefeated ? (
+                              <h3 style={{ fontSize: "24px", color: "black" }}>Character Defeated!</h3>
+                            ) : (
+                              <>
+                                <h2 style={{ fontSize: "24px", color: "black" }}>{userData?.username}</h2>
+                                <img
+                                  className={isCharacterHit ? "monster-hit" : ""}
+                                  src={`/Characters/SwordMan.png`}
+                                  style={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px" }}
+                                />
+                                <div className="progress" style={{ width: "300px", height: "18px", backgroundColor: "#333", borderRadius: "5px", margin: "10px auto", position: "relative" }}>
+                                  <div className="progress-bar bg-danger"
+                                    style={{
+                                      width: `${(charactersHP / charactersMaxHP) * 100}%`,
+                                      height: "100%",
+                                      borderRadius: "5px"
+                                    }}>
+                                    <span style={{ fontSize: "14px", position: "absolute", width: "100%", textAlign: "center", fontWeight: "bold" }}>
+                                      {charactersHP} / {charactersMaxHP}
+                                    </span>
+                                  </div>
+                                </div>
+                              </>
+                            )}
+                            <Card
+                              title={`${userData?.character.Class_Name} (Lv. ${userData?.character.Value_Level})`}
+                              variant="borderless"
+                              style={{
+                                width: "100%",
+                                backgroundColor: "rgba(255, 255, 255, 0.5)"
+                              }}
+                            >
+                              <p style={{ height: "5px" }}><strong style={{ color: "darkred" }}>💥 Damage: {charactersDamage ?? 0}</strong></p>
+                              <p style={{ height: "5px" }}><strong style={{ color: "red" }}>❤️️ Health: {charactersHP ?? 0}/{charactersMaxHP ?? 0}</strong></p>
+                              <p style={{ height: "5px" }}><strong style={{ color: "green" }}>🛡️ Defense: 0</strong></p>
+                            </Card>
+                          </div>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                    ) : i === 2 ? (
+                      ""
+                    ) : i === 3 ? (
+                      <div className="battle-container" style={{ display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "space-between", height: "100vh", color: "white", textAlign: "center", padding: "20px" }}>
+                        {monsterList.length > 0 && (!isEnded || charactersHP <= 0) ? (
+                          <div style={{ textAlign: "center" }}>
+                            {isMonsterDefeated ? (
+                              <h3 style={{ fontSize: "24px", color: "black" }}>Monster Defeated! Prepare for next wave!</h3>
+                            ) : (
+                              <>
+                                <h2 style={{ fontSize: "24px", color: "black" }}>{monsterList[currentMonsterIndex].name}</h2>
+                                <img
+                                  className={isMonsterHit ? "monster-hit" : ""}
+                                  src={`/Monster/${monsterList[currentMonsterIndex].id}.png`}
+                                  style={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px", }}
+                                />
+                                <div className="progress" style={{ width: "300px", height: "18px", backgroundColor: "#333", borderRadius: "5px", margin: "10px auto", position: "relative" }}>
+                                  <div className="progress-bar bg-danger"
+                                    style={{
+                                      width: `${(monsterHP / monsterList[currentMonsterIndex]?.health) * 100}%`,
+                                      height: "100%",
+                                      borderRadius: "5px"
+                                    }}>
+                                    <span style={{ fontSize: "14px", position: "absolute", width: "100%", textAlign: "center", fontWeight: "bold" }}>
+                                      {monsterHP} / {monsterList[currentMonsterIndex]?.health}
+                                    </span>
+                                  </div>
+                                </div>
+                                <Card
+                                  title={`${monsterList[currentMonsterIndex].name} (Lv. ${monsterList[currentMonsterIndex].level})`}
+                                  variant="borderless"
+                                  style={{
+                                    width: "100%",
+                                    backgroundColor: "rgba(255, 255, 255, 0.5)"
+                                  }}
+                                >
+                                  <p style={{ height: "5px" }}><strong style={{ color: "darkred" }}>💥 Damage: {monsterList[currentMonsterIndex]?.damage ?? 0}</strong></p>
+                                  <p style={{ height: "5px" }}><strong style={{ color: "red" }}>❤️️ Health: {monsterHP ?? 0}/{monsterList[currentMonsterIndex]?.health ?? 0}</strong></p>
+                                  <p style={{ height: "5px" }}><strong style={{ color: "green" }}>🛡️ Defense: {monsterList[currentMonsterIndex]?.defense ?? 0}</strong></p>
+                                </Card>
+                              </>
+                            )}
+                          </div>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                    ) : (
+                      ""
+                    )}
+                  </div>
+                ))}
+              </Flex>
             </Flex>
-          </Flex>
+          )}
         </div>
       </div>
 
@@ -501,7 +500,7 @@ export default function Game() {
           <Modal.Title>Stage Completed!</Modal.Title>
         </Modal.Header>
         <Modal.Body style={{ textAlign: "center", justifyContent: "center" }}>
-          <h4>= Stage Rewards =</h4>
+          <h4>--- Stage Rewards ---</h4>
           <h5>🪙 Coins: {Number(localStorage.getItem("rewardCoins"))}</h5>
           <h5>✨ XP: {Number(localStorage.getItem("rewardXP"))}</h5>
           <Button className="w-100" variant="primary" onClick={() => handleReturn(instanceID)}>
@@ -516,6 +515,7 @@ export default function Game() {
           <Modal.Title>Unknown Instance</Modal.Title>
         </Modal.Header>
         <Modal.Body>
+          <p>You can't do this! Get out of here!</p>
           <Button className="w-100" variant="primary" onClick={() => router.push("/stagelist")}>
             Return
           </Button>
