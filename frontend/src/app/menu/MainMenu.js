@@ -15,6 +15,7 @@ export default function MainMenu() {
   const [showModalLogout, setShowModalLogout] = useState(false);
   const [token, setToken] = useState(null);
   const [userCharacters, setUserCharacters] = useState(null);
+  const [showClassPopup, setShowClassPopup] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -41,7 +42,12 @@ export default function MainMenu() {
         setUserData(userData);
         localStorage.setItem("userData", JSON.stringify(userData));
         setUserCharacters(userData.character);
-        setUserRole(userData.role.name);
+        setUserRole(userData.role.name || "NULL");
+
+        if (!userData.class) {
+          setShowClassPopup(true); // แสดงป็อปอัพ
+        }
+
       } catch (error) {
         console.error("Error fetching user role:", error);
         setUserRole("NULL");
@@ -124,6 +130,18 @@ export default function MainMenu() {
             <Button className="w-50" variant="secondary" onClick={() => setShowModalLogout(false)}>Cancel</Button>
             <Button className="w-50" variant="danger" onClick={() => buttonLogout()}>Logout</Button>
           </div>
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={showClassPopup} onHide={() => setShowClassPopup(false)} centered>
+        <Modal.Header>
+          <Modal.Title>Please select your class</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>You need to select a class before starting the game.</p>
+          <Button variant="primary" onClick={() => router.push('/select-class')}>
+            Select Class
+          </Button>
         </Modal.Body>
       </Modal>
     </div>
