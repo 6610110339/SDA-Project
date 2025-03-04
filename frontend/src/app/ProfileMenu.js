@@ -72,10 +72,10 @@ export default function ProfileMenu() {
                     ) : (
                         <>
                             <p><strong>=== Game Profile ===</strong></p>
+                            <p><strong>Class:</strong> {userCharacters.Class_Name}</p>
                             <p><strong>Level:</strong> {userCharacters.Value_Level}</p>
                             <p><strong>Coins:</strong> {userCharacters.Value_Coins}</p>
                             <p><strong>XP:</strong> {userCharacters.Value_XP}/{(userCharacters.Value_Level * 15)}</p>
-                            <p><strong>Class:</strong> {userCharacters.Class_Name}</p>
                         </>
                     )}
                     <p><strong>=== User Profile ===</strong></p>
