@@ -80,8 +80,9 @@ export default function MainMenu() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
-              <Nav.Link
-                onClick={() => setShowHTP(true)}>How to Play</Nav.Link>
+              <Nav.Link className="fw-bold text-white">
+              {userData?.username}
+              </Nav.Link>
               {token && (
                 <ProfileMenu />
               )}
@@ -98,7 +99,7 @@ export default function MainMenu() {
               variant="success"
               size="lg"
               onClick={() => router.push("/stagelist")}
-              className="hover-effect"
+              className="hover-effect text-black"
             >
               Start Game
             </Button>
@@ -106,14 +107,14 @@ export default function MainMenu() {
               variant="primary"
               size="lg"
               onClick={() => router.push("/shop")}
-              className="hover-effect"
+              className="hover-effect text-black"
             >
               Upgrade  Shop
             </Button>
             <Button
               size="lg"
               onClick={() => router.push("/skills")}
-              className="hover-effect"
+              className="hover-effect text-black"
               style={{
                 backgroundColor: "purple",
                 borderColor: "black"
@@ -126,12 +127,20 @@ export default function MainMenu() {
                 variant="warning"
                 size="lg"
                 onClick={() => router.push("/admin")}
-                className="hover-effect"
+                className="hover-effect text-black"
               >
                 Admin Panel
               </Button>
             )}
-          </div>
+              <Button
+              variant="info"
+              size="lg"
+              onClick={() => setShowHTP(true)}
+              className="hover-effect text-black"
+              > How to Play
+              </Button>  
+              </div>
+
         )}
       </div>
 
