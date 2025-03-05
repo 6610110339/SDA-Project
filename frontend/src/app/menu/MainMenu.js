@@ -81,7 +81,7 @@ export default function MainMenu() {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
               <Nav.Link className="fw-bold text-white">
-              {userData?.username}
+                {userData?.username}
               </Nav.Link>
               {token && (
                 <ProfileMenu />
@@ -104,23 +104,11 @@ export default function MainMenu() {
               Start Game
             </Button>
             <Button
-              variant="primary"
+              variant="info"
               size="lg"
-              onClick={() => router.push("/shop")}
+              onClick={() => setShowHTP(true)}
               className="hover-effect text-black"
-            >
-              Upgrade  Shop
-            </Button>
-            <Button
-              size="lg"
-              onClick={() => router.push("/skills")}
-              className="hover-effect text-black"
-              style={{
-                backgroundColor: "purple",
-                borderColor: "black"
-              }}
-            >
-              Skills
+            > How to Play
             </Button>
             {userRole === "Admin" && (
               <Button
@@ -132,14 +120,7 @@ export default function MainMenu() {
                 Admin Panel
               </Button>
             )}
-              <Button
-              variant="info"
-              size="lg"
-              onClick={() => setShowHTP(true)}
-              className="hover-effect text-black"
-              > How to Play
-              </Button>  
-              </div>
+          </div>
 
         )}
       </div>

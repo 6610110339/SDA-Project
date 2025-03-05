@@ -152,6 +152,9 @@ export default function SelectClass() {
               <Nav.Link onClick={() => router.push("/menu")}>
                 Back to Menu
               </Nav.Link>
+              <Nav.Link className="fw-bold text-white">
+                {userData?.username}
+              </Nav.Link>
               {token && <ProfileMenu />}
             </Nav>
           </Navbar.Collapse>

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Navbar, Nav, Container, Button, Modal, ListGroup } from "react-bootstrap";
 import { UserOutlined } from '@ant-design/icons';
-import { Collapse, Tag, Avatar } from 'antd';
+import { Collapse, Tag, Avatar, Space } from 'antd';
 import ProfileMenu from "../ProfileMenu";
 
 export default function Admin() {
@@ -138,6 +138,9 @@ export default function Admin() {
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
               <Nav.Link onClick={() => router.push("/menu")}>Back to Menu</Nav.Link>
+              <Nav.Link className="fw-bold text-white">
+                {userData?.username}
+              </Nav.Link>
               {token && (
                 <ProfileMenu />
               )}
@@ -150,6 +153,33 @@ export default function Admin() {
         {isLoading ? ("") : (
           <div style={{ width: "100%", maxWidth: "700px", backgroundColor: "rgba(255, 255, 255, 0.9)", padding: "20px", borderRadius: "1rem" }}>
             <ListGroup className="shadow-lg rounded-4 overflow-hidden">
+              <div
+                style={{
+                  height: "80px",
+                  justifyContent: "center",
+                  display: "flex",
+                  alignItems: "center",
+                  textAlign: "center",
+                  gap: "15px"
+                }}
+              >
+                <Button
+                  size="lg"
+                  onClick={() => router.push("/shop")}
+                  style={{ width: "30%", backgroundColor: "blue", borderColor: "white" }}
+                  className="hover-effect  text-white"
+                >
+                  Upgrade Shop
+                </Button>
+                <Button
+                  size="lg"
+                  onClick={() => router.push("/shop")}
+                  style={{ width: "30%", backgroundColor: "purple", borderColor: "white" }}
+                  className="hover-effect text-white"
+                >
+                  Upgrade Skills
+                </Button>
+              </div>
               <ListGroup.Item style={{ backgroundColor: "green" }} className="text-white fw-bold fs-5">🌳 Map 1 - Forest</ListGroup.Item>
               <Collapse items={stages_map1.map(stage => ({
                 key: stage.key,

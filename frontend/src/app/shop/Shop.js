@@ -302,11 +302,14 @@ export default function Shop() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
+              <Nav.Link onClick={() => router.push("/stagelist")}>Back to Menu</Nav.Link>
               <Nav.Link
                 style={{ color: "gold" }}
               >Coins: {userData?.character.Value_Coins ?? "Loading..."}
               </Nav.Link>
-              <Nav.Link onClick={() => router.push("/menu")}>Back to Menu</Nav.Link>
+              <Nav.Link className="fw-bold text-white">
+                {userData?.username}
+              </Nav.Link>
               {token && (
                 <ProfileMenu />
               )}
