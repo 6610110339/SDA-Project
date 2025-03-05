@@ -70,6 +70,12 @@
       "relation": "oneToOne",
       "target": "api::character.character",
       "inversedBy": "owner"
+    },
+    "upgrade": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::upgrade.upgrade",
+      "mappedBy": "owner"
     }
   }
 }

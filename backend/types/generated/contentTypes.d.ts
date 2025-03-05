@@ -472,6 +472,50 @@ export interface ApiMonsterListMonsterList extends Struct.CollectionTypeSchema {
   };
 }
 
+export interface ApiUpgradeUpgrade extends Struct.CollectionTypeSchema {
+  collectionName: 'upgrades';
+  info: {
+    description: '';
+    displayName: 'Upgrades';
+    pluralName: 'upgrades';
+    singularName: 'upgrade';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    createdAt: Schema.Attribute.DateTime;
+    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    locale: Schema.Attribute.String & Schema.Attribute.Private;
+    localizations: Schema.Attribute.Relation<
+      'oneToMany',
+      'api::upgrade.upgrade'
+    > &
+      Schema.Attribute.Private;
+    owner: Schema.Attribute.Relation<
+      'oneToOne',
+      'plugin::users-permissions.user'
+    >;
+    publishedAt: Schema.Attribute.DateTime;
+    updatedAt: Schema.Attribute.DateTime;
+    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
+      Schema.Attribute.Private;
+    Upgrade_Damage: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<0>;
+    Upgrade_Defense: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<0>;
+    Upgrade_Health: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<0>;
+    Upgrade_Skill: Schema.Attribute.Integer &
+      Schema.Attribute.Required &
+      Schema.Attribute.DefaultTo<0>;
+  };
+}
+
 export interface PluginContentReleasesRelease
   extends Struct.CollectionTypeSchema {
   collectionName: 'strapi_releases';
@@ -966,6 +1010,7 @@ export interface PluginUsersPermissionsUser
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    upgrade: Schema.Attribute.Relation<'oneToOne', 'api::upgrade.upgrade'>;
     username: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.Unique &
@@ -988,6 +1033,7 @@ declare module '@strapi/strapi' {
       'api::active-stage-list.active-stage-list': ApiActiveStageListActiveStageList;
       'api::character.character': ApiCharacterCharacter;
       'api::monster-list.monster-list': ApiMonsterListMonsterList;
+      'api::upgrade.upgrade': ApiUpgradeUpgrade;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;
