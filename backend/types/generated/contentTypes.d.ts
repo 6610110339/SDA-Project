@@ -497,7 +497,7 @@ export interface ApiSkillSkill extends Struct.CollectionTypeSchema {
     publishedAt: Schema.Attribute.DateTime;
     Skill_BaseDamage: Schema.Attribute.Integer &
       Schema.Attribute.Required &
-      Schema.Attribute.DefaultTo<2>;
+      Schema.Attribute.DefaultTo<4>;
     Skill_ID: Schema.Attribute.String &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<'FIRE_BALL'>;

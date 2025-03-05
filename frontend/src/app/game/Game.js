@@ -25,9 +25,10 @@ export default function Game() {
 
   const [currentTurn, setCurrentTurn] = useState("👤 Player");
   const [turnCount, setTurnCount] = useState(1);
-  const [charactersPoint, setCharactersPoint] = useState(1);
+  const [charactersPoint, setCharactersPoint] = useState(50);
   const [charactersDamage, setCharactersDamage] = useState(20);
   const [charactersDefense, setCharactersDefense] = useState(20);
+  const [charactersBonusSkill, setCharactersBonusSkill] = useState(20);
   const [charactersHP, setCharactersHP] = useState(20);
   const [charactersMaxHP, setCharactersMaxHP] = useState(20);
   const [isCharactersDefeated, setIsCharactersDefeated] = useState(false);
@@ -156,29 +157,45 @@ export default function Game() {
       }, 300);
       monster_hurt.volume = 0.25
       monster_hurt.play()
-      setCurrentTurn("☠️ Monster")
       if ((monsterHP - charactersDamage) <= 0) {
-        setIsMonsterDefeated(true);
-        setIsMonsterLoaded(false);
-        setMonsterEffect([]);
-        const rewardCoins = localStorage.getItem("rewardCoins");
-        const rewardXP = localStorage.getItem("rewardXP");
-        localStorage.setItem("rewardCoins", (Number(rewardCoins) + Number(monsterList[currentMonsterIndex].drops.exp)));
-        localStorage.setItem("rewardXP", (Number(rewardXP) + Number(monsterList[currentMonsterIndex].drops.coins)));
-        if (currentMonsterIndex < monsterList.length - 1) {
-          setTimeout(() => {
-            setIsMonsterDefeated(false);
-            setIsMonsterLoaded(true);
-            setCurrentMonsterIndex(currentMonsterIndex + 1);
-            setMonsterHP(monsterList[currentMonsterIndex + 1].health);
-          }, 1000);
-        } else {
-          setIsEnded(true);
-          setShowModalEnd(true);
-          handleClaim();
-          return;
-        }
+        handleMonsterDied();
+        console.log("died attack")
+        return
+      };
+      setCurrentTurn("☠️ Monster");
+    }
+  };
+
+  const handlePlayerSkill = () => {
+    const monster_hurt = new Audio("/sounds/monster_hurt.mp3");
+    const monsterDefense = Number(monsterList[currentMonsterIndex].defense)
+    const damageReduction = Number((monsterDefense / (monsterDefense + 100)) * 100).toFixed(0)
+    const skillDamage = Number((userSkills.Skill_BaseDamage * userSkills.Skill_Level) * (1 + (charactersBonusSkill / 100))).toFixed(0)
+    const damageValue = ((Number(skillDamage) * (100 - Number(damageReduction))) / 100).toFixed(0)
+    setCharactersPoint(charactersPoint - 2);
+    if (userSkills.Skill_ID == "FIRE_BALL") {
+      const newEffect = {
+        TYPE: "BURNING",
+        DAMAGE: Number(((skillDamage * 30) / 100).toFixed(0)),
+        DURATION: 3
       }
+      setMonsterEffect([...monsterEffect, newEffect]);
+      console.log(monsterEffect)
+    };
+    if (monsterHP >= 0) {
+      setMonsterHP(monsterHP - Number(damageValue));
+      setIsMonsterHit(true);
+      setTimeout(() => {
+        setIsMonsterHit(false);
+      }, 300);
+      monster_hurt.volume = 0.25
+      monster_hurt.play()
+      if ((monsterHP - charactersDamage) <= 0) {
+        handleMonsterDied();
+        console.log("died skill")
+        return;
+      };
+      setCurrentTurn("☠️ Monster");
     }
   };
 
@@ -194,6 +211,29 @@ export default function Game() {
     }, 300);
     player_heal.volume = 0.25
     player_heal.play()
+  };
+
+  const handleMonsterDied = () => {
+    setIsMonsterDefeated(true);
+    setIsMonsterLoaded(false);
+    setMonsterEffect([]);
+    const rewardCoins = localStorage.getItem("rewardCoins");
+    const rewardXP = localStorage.getItem("rewardXP");
+    localStorage.setItem("rewardCoins", (Number(rewardCoins) + Number(monsterList[currentMonsterIndex].drops.exp)));
+    localStorage.setItem("rewardXP", (Number(rewardXP) + Number(monsterList[currentMonsterIndex].drops.coins)));
+    if (currentMonsterIndex < monsterList.length - 1) {
+      setTimeout(() => {
+        setIsMonsterDefeated(false);
+        setIsMonsterLoaded(true);
+        setCurrentMonsterIndex(currentMonsterIndex + 1);
+        setMonsterHP(monsterList[currentMonsterIndex + 1].health);
+      }, 1000);
+    } else {
+      setIsEnded(true);
+      setShowModalEnd(true);
+      handleClaim();
+      return;
+    }
   };
 
   const handleMonsterAttack = () => {
@@ -222,29 +262,77 @@ export default function Game() {
   };
 
   useEffect(() => {
-    setTurnCount(turnCount + 1);
-    if (currentTurn == "☠️ Monster" && (!isEnded)) {
-      if (monsterEffect.length > 1) {
-        const effectTimeout = setTimeout(() => {
-          console.log("BURN")
+    if (monsterHP <= 0) {
+      setIsMonsterDefeated(true);
+      handleMonsterDied();
+    };
+  }, [monsterHP]);
+
+  useEffect(() => {
+    if (currentTurn === "☠️ Monster" && !isEnded && !isMonsterDefeated) {
+      if (monsterEffect.length > 0) {
+        let index = 0;
+
+        const applyEffect = () => {
+          if (index < monsterEffect.length && !isMonsterDefeated) {
+            const effect = monsterEffect[index];
+
+            const monster_hurt = new Audio("/sounds/monster_hurt.mp3");
+            const monsterDefense = Number(monsterList[currentMonsterIndex].defense);
+            const damageReduction = Number((monsterDefense / (monsterDefense + 100)) * 100).toFixed(0);
+            const damageValue = ((effect.DAMAGE * (100 - Number(damageReduction))) / 100).toFixed(0);
+
+            setMonsterHP((prevHP) => {
+              const newHP = prevHP - Number(damageValue);
+              if (newHP <= 0) {
+                setIsMonsterDefeated(true);
+              } else {
+                monster_hurt.volume = 0.25;
+                monster_hurt.play();
+
+                setIsMonsterHit(true);
+                setTimeout(() => {
+                  setIsMonsterHit(false);
+                }, 300);
+              }
+              return newHP;
+            });
+
+            setTimeout(() => {
+              if (!isMonsterDefeated) {
+                index++;
+                applyEffect();
+              }
+            }, 500);
+          } else {
+            if (!isMonsterDefeated) {
+              setMonsterEffect((prevEffects) =>
+                prevEffects
+                  .map((e) => ({ ...e, DURATION: e.DURATION - 1 }))
+                  .filter((e) => e.DURATION > 0)
+              );
+              setTimeout(() => {
+                handleMonsterAttack();
+              }, 1000);
+            }
+          }
+        };
+
+        setTimeout(() => {
+          if (!isMonsterDefeated) {
+            applyEffect();
+          }
         }, 1000);
-        const attackTimeout = setTimeout(() => {
-          handleMonsterAttack();
-        }, 2000);
-        return () => {
-          clearTimeout(effectTimeout);
-          clearTimeout(attackTimeout);
-        }
+
       } else {
-        const attackTimeout = setTimeout(() => {
+        setTimeout(() => {
           handleMonsterAttack();
         }, 1000);
-        return () => {
-          clearTimeout(attackTimeout);
-        }
       }
+
     }
-  }, [currentTurn, isMonsterLoaded]);
+  }, [currentTurn, isEnded, isMonsterDefeated]);
+
 
   useEffect(() => {
     const token = localStorage.getItem("authToken");
@@ -287,15 +375,17 @@ export default function Game() {
         setUserSkills(userData.skill);
 
         if (!userData.upgrade) {
-          setCharactersDamage((Number(userData.character.Value_Level) * 1) + 1);
+          setCharactersDamage((Number(userData.character.Value_Level) * 1));
           setCharactersMaxHP((Number(userData.character.Value_Level) * 15) + 5);
           setCharactersHP((Number(userData.character.Value_Level) * 15) + 5);
           setCharactersDefense((Number(userData.character.Value_Level) * 1) + 1);
+          setCharactersBonusSkill((Number(userData.character.Value_Level) * 1) + 1)
         } else {
-          setCharactersDamage((userData.upgrade.Upgrade_Damage * 1) + (Number(userData.character.Value_Level) * 1) + 1);
+          setCharactersDamage((userData.upgrade.Upgrade_Damage * 1) + (Number(userData.character.Value_Level) * 1));
           setCharactersMaxHP((userData.upgrade.Upgrade_Health * 2) + (Number(userData.character.Value_Level) * 15) + 5);
           setCharactersHP((userData.upgrade.Upgrade_Health * 2) + (Number(userData.character.Value_Level) * 15) + 5);
           setCharactersDefense((userData.upgrade.Upgrade_Defense * 1) + (Number(userData.character.Value_Level) * 1) + 1);
+          setCharactersBonusSkill((userData.upgrade.Upgrade_Skill * 1) + (Number(userData.character.Value_Level) * 1) + 1);
         };
         setIsCharactersDefeated(false);
       } catch (error) {
@@ -403,9 +493,13 @@ export default function Game() {
                                 }}>
                                 ⚔️ Attack</button>
                             </Tooltip>
-                            <Tooltip title="Use ??? 💠 Point to cast spell on enemy" color="blue" placement="bottom">
+                            <Tooltip title="Use 2 💠 Point to cast spell on enemy" color="blue" placement="bottom">
                               <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect"
-                                onClick={() => { if (currentTurn === "👤 Player" && !isEnded) handlePlayerAttack() }}
+                                onClick={() => {
+                                  if (currentTurn === "👤 Player" && !isEnded) {
+                                    if (charactersPoint >= 2) handlePlayerSkill()
+                                  }
+                                }}
                                 style={{
                                   padding: "10px 20px",
                                   fontSize: "18px",

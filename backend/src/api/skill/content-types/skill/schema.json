@@ -28,7 +28,7 @@
     },
     "Skill_BaseDamage": {
       "type": "integer",
-      "default": 2,
+      "default": 4,
       "required": true
     },
     "owner": {
