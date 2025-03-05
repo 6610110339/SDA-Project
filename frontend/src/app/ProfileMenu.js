@@ -10,13 +10,13 @@ export default function ProfileMenu() {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [userCharacters, setUserCharacters] = useState(null);
-    const [showModalLogout, setShowModalLogout] = useState(false); // State to show logout confirmation
+    const [showModalLogout, setShowModalLogout] = useState(false);
     const [showModalEdit, setShowModalEdit] = useState(false);
-    const [showConfirmation, setShowConfirmation] = useState(false); // State for confirmation modal
+    const [showConfirmation, setShowConfirmation] = useState(false);
     const [newUsername, setNewUsername] = useState("");
     const [newEmail, setNewEmail] = useState("");
-    const [selectedFile, setSelectedFile] = useState(null); // File is only set here, not uploaded yet
-    const [previewImage, setPreviewImage] = useState(null); // Holds image preview but not the actual update
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [previewImage, setPreviewImage] = useState(null);
     const router = useRouter();
 
     useEffect(() => {
@@ -56,14 +56,13 @@ export default function ProfileMenu() {
     const handleLogout = () => {
         localStorage.removeItem("authToken");
         localStorage.removeItem("userData");
-        router.push("/"); // Redirect to the home page after logout
+        router.push("/");
     };
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         setSelectedFile(file);
 
-        // Only show the preview, not update the user yet
         if (file) {
             const reader = new FileReader();
             reader.onload = (event) => setPreviewImage(event.target.result);
@@ -78,7 +77,6 @@ export default function ProfileMenu() {
         try {
             let uploadedImageId = null;
 
-            // Step 1: Upload New Profile Picture (if selected)
             if (selectedFile) {
                 const imageFormData = new FormData();
                 imageFormData.append("files", selectedFile);
@@ -95,7 +93,6 @@ export default function ProfileMenu() {
                 uploadedImageId = imageData[0]?.id;
             }
 
-            // Step 2: Update User Profile
             const profileData = {
                 username: newUsername,
                 email: newEmail,
@@ -170,7 +167,7 @@ export default function ProfileMenu() {
                         type="primary"
                         danger
                         icon={<LogoutOutlined />}
-                        onClick={() => setShowModalLogout(true)} // Show logout confirmation modal
+                        onClick={() => setShowModalLogout(true)}
                         block
                         style={{ backgroundColor: "#ff4d4f", color: "white", fontWeight: "bold" }}
                     >
@@ -421,7 +418,7 @@ export default function ProfileMenu() {
             <Modal show={showModalLogout} onHide={() => setShowModalLogout(false)} centered>
                 <Modal.Header
                     style={{
-                        backgroundColor: "#ff4d4f",  
+                        backgroundColor: "#ff4d4f",
                         color: "white",
                         textAlign: "center",
                     }}
@@ -462,10 +459,10 @@ export default function ProfileMenu() {
                         Cancel
                     </Button>
                     <Button
-                        variant="danger" 
+                        variant="danger"
                         onClick={handleLogout}
                         style={{
-                            backgroundColor: "#ff4d4f",  
+                            backgroundColor: "#ff4d4f",
                             color: "#fff",
                             borderRadius: "20px",
                             padding: "8px 20px",
