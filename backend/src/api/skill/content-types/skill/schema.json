@@ -1,0 +1,40 @@
+{
+  "kind": "collectionType",
+  "collectionName": "skills",
+  "info": {
+    "singularName": "skill",
+    "pluralName": "skills",
+    "displayName": "Skill"
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "attributes": {
+    "Skill_ID": {
+      "type": "string",
+      "required": true,
+      "default": "FIRE_BALL"
+    },
+    "Skill_Name": {
+      "type": "string",
+      "required": true,
+      "default": "Fire Ball"
+    },
+    "Skill_Level": {
+      "type": "integer",
+      "default": 1,
+      "required": true
+    },
+    "Skill_Damage": {
+      "type": "integer",
+      "default": 2,
+      "required": true
+    },
+    "owner": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "skill"
+    }
+  }
+}

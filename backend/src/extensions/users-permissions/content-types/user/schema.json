@@ -86,6 +86,12 @@
       "relation": "oneToOne",
       "target": "api::upgrade.upgrade",
       "mappedBy": "owner"
+    },
+    "skill": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "api::skill.skill",
+      "mappedBy": "owner"
     }
   }
 }
