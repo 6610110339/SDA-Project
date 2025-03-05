@@ -476,7 +476,7 @@ export interface ApiUpgradeUpgrade extends Struct.CollectionTypeSchema {
   collectionName: 'upgrades';
   info: {
     description: '';
-    displayName: 'Upgrades';
+    displayName: 'Upgrade';
     pluralName: 'upgrades';
     singularName: 'upgrade';
   };

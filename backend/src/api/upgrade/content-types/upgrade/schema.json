@@ -4,30 +4,19 @@
   "info": {
     "singularName": "upgrade",
     "pluralName": "upgrades",
-    "displayName": "Upgrades",
+    "displayName": "Upgrade",
     "description": ""
   },
   "options": {
     "draftAndPublish": true
   },
   "attributes": {
-    "owner": {
-      "type": "relation",
-      "relation": "oneToOne",
-      "target": "plugin::users-permissions.user",
-      "inversedBy": "upgrade"
-    },
     "Upgrade_Health": {
       "type": "integer",
       "required": true,
       "default": 0
     },
     "Upgrade_Damage": {
-      "type": "integer",
-      "default": 0,
-      "required": true
-    },
-    "Upgrade_Defense": {
       "type": "integer",
       "required": true,
       "default": 0
@@ -36,6 +25,17 @@
       "type": "integer",
       "required": true,
       "default": 0
+    },
+    "Upgrade_Defense": {
+      "type": "integer",
+      "default": 0,
+      "required": true
+    },
+    "owner": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "upgrade"
     }
   }
 }
