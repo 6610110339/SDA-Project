@@ -15,6 +15,7 @@ export default function Game() {
   const [token, setToken] = useState(null);
   const [userCharacters, setUserCharacters] = useState(null);
   const [userUpgrades, setUserUpgrades] = useState(null);
+  const [userSkills, setUserSkills] = useState(null);
   const [showModalReturn, setShowModalReturn] = useState(false);
   const [showModalErrorInstance, setShowModalErrorInstance] = useState(false);
   const [showModalEnd, setShowModalEnd] = useState(false);
@@ -283,6 +284,7 @@ export default function Game() {
         setUserCharacters(userData.character);
         setUserRole(userData.role.name);
         setUserUpgrades(userData.upgrade);
+        setUserSkills(userData.skill);
 
         if (!userData.upgrade) {
           setCharactersDamage((Number(userData.character.Value_Level) * 1) + 1);
