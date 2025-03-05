@@ -4,7 +4,8 @@
   "info": {
     "singularName": "skill",
     "pluralName": "skills",
-    "displayName": "Skill"
+    "displayName": "Skill",
+    "description": ""
   },
   "options": {
     "draftAndPublish": true
@@ -25,7 +26,7 @@
       "default": 1,
       "required": true
     },
-    "Skill_Damage": {
+    "Skill_BaseDamage": {
       "type": "integer",
       "default": 2,
       "required": true

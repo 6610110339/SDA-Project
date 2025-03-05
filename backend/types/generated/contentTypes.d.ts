@@ -475,6 +475,7 @@ export interface ApiMonsterListMonsterList extends Struct.CollectionTypeSchema {
 export interface ApiSkillSkill extends Struct.CollectionTypeSchema {
   collectionName: 'skills';
   info: {
+    description: '';
     displayName: 'Skill';
     pluralName: 'skills';
     singularName: 'skill';
@@ -494,7 +495,7 @@ export interface ApiSkillSkill extends Struct.CollectionTypeSchema {
       'plugin::users-permissions.user'
     >;
     publishedAt: Schema.Attribute.DateTime;
-    Skill_Damage: Schema.Attribute.Integer &
+    Skill_BaseDamage: Schema.Attribute.Integer &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<2>;
     Skill_ID: Schema.Attribute.String &
