@@ -141,7 +141,7 @@ export default function ProfileMenu() {
                     ) : (
                         <>
                             <p style={{ fontWeight: "bold", fontSize: "16px" }}>
-                                <span role="img" aria-label="game">🎮</span> <strong>=== Game Profile ===</strong>
+                                <span role="img" aria-label="game"></span> <strong>=== Game Profile ===</strong>
                             </p>
                             <p><strong>Class:</strong> {userCharacters.Class_Name} <span role="img" aria-label="class">🛡️</span></p>
                             <p><strong>Level:</strong> {userCharacters.Value_Level} <span role="img" aria-label="level">📈</span></p>
@@ -150,7 +150,7 @@ export default function ProfileMenu() {
                         </>
                     )}
                     <p style={{ fontWeight: "bold", fontSize: "16px" }}>
-                        <span role="img" aria-label="user">👤</span> <strong>=== User Profile ===</strong>
+                        <span role="img" aria-label="user"></span> <strong>=== User Profile ===</strong>
                     </p>
                     <p><strong>Username:</strong> {user.username} <span role="img" aria-label="username">👨‍💻</span></p>
                     <p><strong>Email:</strong> {user.email} <span role="img" aria-label="email">📧</span></p>
@@ -163,7 +163,7 @@ export default function ProfileMenu() {
                         onClick={() => setShowModalEdit(true)}
                         block
                     >
-                        <span role="img" aria-label="edit">✏️</span> Edit Profile
+                        <span role="img" aria-label="edit"></span> Edit Profile
                     </Button>
 
                     <Button
@@ -174,7 +174,7 @@ export default function ProfileMenu() {
                         block
                         style={{ backgroundColor: "#ff4d4f", color: "white", fontWeight: "bold" }}
                     >
-                        <span role="img" aria-label="logout">🚪</span> Logout
+                        <span role="img" aria-label="logout"></span> Logout
                     </Button>
                 </>
             ) : (
@@ -421,7 +421,7 @@ export default function ProfileMenu() {
             <Modal show={showModalLogout} onHide={() => setShowModalLogout(false)} centered>
                 <Modal.Header
                     style={{
-                        backgroundColor: "#ff4d4f",  // Red background color
+                        backgroundColor: "#ff4d4f",  
                         color: "white",
                         textAlign: "center",
                     }}
@@ -462,10 +462,10 @@ export default function ProfileMenu() {
                         Cancel
                     </Button>
                     <Button
-                        variant="danger"  // Red color for the logout button
+                        variant="danger" 
                         onClick={handleLogout}
                         style={{
-                            backgroundColor: "#ff4d4f",  // Red background color
+                            backgroundColor: "#ff4d4f",  
                             color: "#fff",
                             borderRadius: "20px",
                             padding: "8px 20px",
