@@ -191,7 +191,7 @@ export default function Admin() {
         </Modal.Header>
         <Modal.Body>
           <p>You need to select a class before starting the game.</p>
-          <Button variant="primary" onClick={() => router.push('/select-class')}>
+          <Button variant="primary" onClick={() => router.push('/selectclass')}>
             Select Class
           </Button>
         </Modal.Body>
