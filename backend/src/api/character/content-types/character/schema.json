@@ -40,7 +40,7 @@
       "type": "relation",
       "relation": "oneToOne",
       "target": "plugin::users-permissions.user",
-      "inversedBy": "character"
+      "mappedBy": "character"
     }
   }
 }
