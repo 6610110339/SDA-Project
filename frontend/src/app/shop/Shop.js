@@ -16,8 +16,10 @@ export default function Shop() {
   const [userCharacters, setUserCharacters] = useState(null);
   const [userUpgrades, setUserUpgrades] = useState(null);
   const [showClassPopup, setShowClassPopup] = useState(false);
+  const [showCreateUpgrade, setShowCreateUpgrade] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaying, setIsPaying] = useState(false);
+  const [isCreating, setIsCreating] = useState(false);
   const [confirmUpgrade, setConfirmUpgrade] = useState({ show: false, type: "" });
 
   const cardStyle = {
@@ -87,13 +89,68 @@ export default function Shop() {
         return;
       };
 
-      setIsLoading(false);
+      if (!userData.upgrade) {
+        setShowCreateUpgrade(true);
+        handleCreate(userData, token);
+        setTimeout(() => {
+          setShowCreateUpgrade(false);
+          setIsLoading(false);
+          fetchUserRole();
+        }, 1500);
+      } else {
+        setIsLoading(false);
+      }
 
     } catch (error) {
       console.error("Error fetching user role:", error);
       setUserRole("NULL");
     }
   };
+
+  const handleCreate = async (userData, token) => {
+    try {
+      if (isCreating) return;
+      setIsCreating(true);
+      const userDocumentId = String(userData.documentId);
+
+      const response = await fetch(`http://localhost:1337/api/upgrades?populate=*&filters[owner][documentId][$eq]=${userDocumentId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const data = await response.json();
+
+      if (!data.data || data.data.length > 1) {
+        throw new Error("Error!");
+      };
+
+      const newData = {
+        Upgrade_Health: 0,
+        Upgrade_Damage: 0,
+        Upgrade_Defense: 0,
+        Upgrade_Skill: 0,
+        owner: userData.documentId
+      };
+
+      const updateResponse = await fetch(`http://localhost:1337/api/upgrades`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ data: newData }),
+      });
+
+      if (!updateResponse.ok) {
+        throw new Error("Error!");
+      }
+
+      setIsCreating(false);
+      return true;
+
+    } catch (error) {
+      console.error("Error Creating Upgrade:", error);
+    }
+  };
+
   const updateUpgradeData = async (type) => {
     try {
       setIsPaying(true);
@@ -122,38 +179,38 @@ export default function Shop() {
       handleCoinsCost(upgragePrice);
 
       if (type == "Upgrade_Health") {
-        let upgrageValue = Number(userData.upgrade.Upgrade_Health + 1);
+        let upgrageValue = Number(userData.upgrade?.Upgrade_Health + 1);
         newData_Upgrade = {
           Upgrade_Health: Number(upgrageValue),
-          Upgrade_Damage: Number(userData.upgrade.Upgrade_Damage),
-          Upgrade_Defense: Number(userData.upgrade.Upgrade_Defense),
-          Upgrade_Skill: Number(userData.upgrade.Upgrade_Skill)
+          Upgrade_Damage: Number(userData.upgrade?.Upgrade_Damage),
+          Upgrade_Defense: Number(userData.upgrade?.Upgrade_Defense),
+          Upgrade_Skill: Number(userData.upgrade?.Upgrade_Skill)
         };
       } else {
         if (type == "Upgrade_Damage") {
-          let upgrageValue = Number(userData.upgrade.Upgrade_Damage + 1);
+          let upgrageValue = Number(userData.upgrade?.Upgrade_Damage + 1);
           newData_Upgrade = {
-            Upgrade_Health: Number(userData.upgrade.Upgrade_Health),
+            Upgrade_Health: Number(userData.upgrade?.Upgrade_Health),
             Upgrade_Damage: Number(upgrageValue),
-            Upgrade_Defense: Number(userData.upgrade.Upgrade_Defense),
-            Upgrade_Skill: Number(userData.upgrade.Upgrade_Skill)
+            Upgrade_Defense: Number(userData.upgrade?.Upgrade_Defense),
+            Upgrade_Skill: Number(userData.upgrade?.Upgrade_Skill)
           };
         } else {
           if (type == "Upgrade_Defense") {
-            let upgrageValue = Number(userData.upgrade.Upgrade_Defense + 1);
+            let upgrageValue = Number(userData.upgrade?.Upgrade_Defense + 1);
             newData_Upgrade = {
-              Upgrade_Health: Number(userData.upgrade.Upgrade_Health),
-              Upgrade_Damage: Number(userData.upgrade.Upgrade_Damage),
+              Upgrade_Health: Number(userData.upgrade?.Upgrade_Health),
+              Upgrade_Damage: Number(userData.upgrade?.Upgrade_Damage),
               Upgrade_Defense: Number(upgrageValue),
-              Upgrade_Skill: Number(userData.upgrade.Upgrade_Skill)
+              Upgrade_Skill: Number(userData.upgrade?.Upgrade_Skill)
             };
           } else {
             if (type == "Upgrade_Skill") {
-              let upgrageValue = Number(userData.upgrade.Upgrade_Skill + 1);
+              let upgrageValue = Number(userData.upgrade?.Upgrade_Skill + 1);
               newData_Upgrade = {
-                Upgrade_Health: Number(userData.upgrade.Upgrade_Health),
-                Upgrade_Damage: Number(userData.upgrade.Upgrade_Damage),
-                Upgrade_Defense: Number(userData.upgrade.Upgrade_Defense),
+                Upgrade_Health: Number(userData.upgrade?.Upgrade_Health),
+                Upgrade_Damage: Number(userData.upgrade?.Upgrade_Damage),
+                Upgrade_Defense: Number(userData.upgrade?.Upgrade_Defense),
                 Upgrade_Skill: Number(upgrageValue)
               };
             } else {
@@ -272,9 +329,9 @@ export default function Shop() {
               style={cardStyle}
             >
               <div style={{ flexGrow: 1 }}>
-                <p style={{ height: "5px" }}><strong>Current Level: {userData?.upgrade.Upgrade_Health ?? "?"}</strong></p>
-                <p style={{ height: "5px" }}><strong>Bonus Stats: +{(Number(userData?.upgrade.Upgrade_Health) * 2)} ❤️ Health</strong></p>
-                <p style={{ height: "20px" }}><strong>Upgrade Cost: {upgadeCost.Upgrade_Health + (Number(userData?.upgrade.Upgrade_Health) * upgadeCost.Upgrade_Health)} Coins</strong></p>
+                <p style={{ height: "5px" }}><strong>Current Level: {userData?.upgrade?.Upgrade_Health ?? "?"}</strong></p>
+                <p style={{ height: "5px" }}><strong>Bonus Stats: +{(Number(userData?.upgrade?.Upgrade_Health) * 2)} ❤️ Health</strong></p>
+                <p style={{ height: "20px" }}><strong>Upgrade Cost: {upgadeCost.Upgrade_Health + (Number(userData?.upgrade?.Upgrade_Health) * upgadeCost.Upgrade_Health)} Coins</strong></p>
                 <button type="button" className="btn btn-outline-primary"
                   onClick={() => handleUpgradeConfirm("Upgrade_Health")}
                   style={{ width: "100%" }}
@@ -288,9 +345,9 @@ export default function Shop() {
               style={cardStyle}
             >
               <div style={{ flexGrow: 1 }}>
-                <p style={{ height: "5px" }}><strong>Current Level: {userData?.upgrade.Upgrade_Damage ?? "?"}</strong></p>
-                <p style={{ height: "5px" }}><strong>Bonus Stats: +{(Number(userData?.upgrade.Upgrade_Damage) * 1)} 💥 Damage</strong></p>
-                <p style={{ height: "20px" }}><strong>Upgrade Cost: {upgadeCost.Upgrade_Damage + (Number(userData?.upgrade.Upgrade_Damage) * upgadeCost.Upgrade_Damage)} Coins</strong></p>
+                <p style={{ height: "5px" }}><strong>Current Level: {userData?.upgrade?.Upgrade_Damage ?? "?"}</strong></p>
+                <p style={{ height: "5px" }}><strong>Bonus Stats: +{(Number(userData?.upgrade?.Upgrade_Damage) * 1)} 💥 Damage</strong></p>
+                <p style={{ height: "20px" }}><strong>Upgrade Cost: {upgadeCost.Upgrade_Damage + (Number(userData?.upgrade?.Upgrade_Damage) * upgadeCost.Upgrade_Damage)} Coins</strong></p>
                 <button type="button" className="btn btn-outline-primary"
                   onClick={() => handleUpgradeConfirm("Upgrade_Damage")}
                   style={{ width: "100%" }}
@@ -304,9 +361,9 @@ export default function Shop() {
               style={cardStyle}
             >
               <div style={{ flexGrow: 1 }}>
-                <p style={{ height: "5px" }}><strong>Current Level: {userData?.upgrade.Upgrade_Defense ?? "?"}</strong></p>
-                <p style={{ height: "5px" }}><strong>Bonus Stats: +{(Number(userData?.upgrade.Upgrade_Defense) * 1)} 🛡️ Defense</strong></p>
-                <p style={{ height: "20px" }}><strong>Upgrade Cost: {upgadeCost.Upgrade_Defense + (Number(userData?.upgrade.Upgrade_Defense) * upgadeCost.Upgrade_Defense)} Coins</strong></p>
+                <p style={{ height: "5px" }}><strong>Current Level: {userData?.upgrade?.Upgrade_Defense ?? "?"}</strong></p>
+                <p style={{ height: "5px" }}><strong>Bonus Stats: +{(Number(userData?.upgrade?.Upgrade_Defense) * 1)} 🛡️ Defense</strong></p>
+                <p style={{ height: "20px" }}><strong>Upgrade Cost: {upgadeCost.Upgrade_Defense + (Number(userData?.upgrade?.Upgrade_Defense) * upgadeCost.Upgrade_Defense)} Coins</strong></p>
                 <button type="button" className="btn btn-outline-primary"
                   onClick={() => handleUpgradeConfirm("Upgrade_Defense")}
                   style={{ width: "100%" }}
@@ -320,9 +377,9 @@ export default function Shop() {
               style={cardStyle}
             >
               <div style={{ flexGrow: 1 }}>
-                <p style={{ height: "5px" }}><strong>Current Level: {userData?.upgrade.Upgrade_Skill ?? "?"}</strong></p>
-                <p style={{ height: "5px" }}><strong>Bonus Stats: +{(Number(userData?.upgrade.Upgrade_Skill) * 1)} 🌀 Damage</strong></p>
-                <p style={{ height: "20px" }}><strong>Upgrade Cost: {upgadeCost.Upgrade_Skill + (Number(userData?.upgrade.Upgrade_Skill) * upgadeCost.Upgrade_Skill)} Coins</strong></p>
+                <p style={{ height: "5px" }}><strong>Current Level: {userData?.upgrade?.Upgrade_Skill ?? "?"}</strong></p>
+                <p style={{ height: "5px" }}><strong>Bonus Stats: +{(Number(userData?.upgrade?.Upgrade_Skill) * 1)} 🌀 Damage</strong></p>
+                <p style={{ height: "20px" }}><strong>Upgrade Cost: {upgadeCost.Upgrade_Skill + (Number(userData?.upgrade?.Upgrade_Skill) * upgadeCost.Upgrade_Skill)} Coins</strong></p>
                 <button type="button" className="btn btn-outline-primary"
                   onClick={() => handleUpgradeConfirm("Upgrade_Skill")}
                   style={{ width: "100%" }}
@@ -356,6 +413,15 @@ export default function Shop() {
           <Button variant="primary" onClick={() => router.push('/select-class')}>
             Select Class
           </Button>
+        </Modal.Body>
+      </Modal>
+
+      <Modal show={showCreateUpgrade} backdrop="static" keyboard={false} centered>
+        <Modal.Header>
+          <Modal.Title>Please wait</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <p>Loading Upgrade...</p>
         </Modal.Body>
       </Modal>
     </>

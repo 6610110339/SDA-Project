@@ -284,13 +284,18 @@ export default function Game() {
         setUserRole(userData.role.name);
         setUserUpgrades(userData.upgrade);
 
-        /////////////
-        setCharactersDamage((userData.upgrade.Upgrade_Damage * 1) + (Number(userData.character.Value_Level) * 1) + 1);
-        setCharactersMaxHP((userData.upgrade.Upgrade_Health * 2) + (Number(userData.character.Value_Level) * 15) + 5);
-        setCharactersHP((userData.upgrade.Upgrade_Health * 2) + (Number(userData.character.Value_Level) * 15) + 5);
-        setCharactersDefense((userData.upgrade.Upgrade_Defense * 1) + (Number(userData.character.Value_Level) * 1) + 1);
+        if (!userData.upgrade) {
+          setCharactersDamage((Number(userData.character.Value_Level) * 1) + 1);
+          setCharactersMaxHP((Number(userData.character.Value_Level) * 15) + 5);
+          setCharactersHP((Number(userData.character.Value_Level) * 15) + 5);
+          setCharactersDefense((Number(userData.character.Value_Level) * 1) + 1);
+        } else {
+          setCharactersDamage((userData.upgrade.Upgrade_Damage * 1) + (Number(userData.character.Value_Level) * 1) + 1);
+          setCharactersMaxHP((userData.upgrade.Upgrade_Health * 2) + (Number(userData.character.Value_Level) * 15) + 5);
+          setCharactersHP((userData.upgrade.Upgrade_Health * 2) + (Number(userData.character.Value_Level) * 15) + 5);
+          setCharactersDefense((userData.upgrade.Upgrade_Defense * 1) + (Number(userData.character.Value_Level) * 1) + 1);
+        };
         setIsCharactersDefeated(false);
-        /////////////
       } catch (error) {
         console.error("Error fetching user role:", error);
         setUserRole("NULL");
@@ -436,7 +441,7 @@ export default function Game() {
                                 <h2 style={{ fontSize: "24px", color: "black" }}>{userData?.username}</h2>
                                 <img
                                   className={isCharacterHit ? "monster-hit" : ""}
-                                  src={`/Characters/SwordMan.png`}
+                                  src={`/Characters/${userData?.character.Class_Name}.png`}
                                   style={{ width: "200px", height: "200px", objectFit: "cover", borderRadius: "10px", marginBottom: "10px" }}
                                 />
                                 <div className="progress" style={{ width: "300px", height: "18px", backgroundColor: "#333", borderRadius: "5px", margin: "10px auto", position: "relative" }}>
