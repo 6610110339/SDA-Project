@@ -25,7 +25,7 @@ export default function Game() {
 
   const [currentTurn, setCurrentTurn] = useState("👤 Player");
   const [turnCount, setTurnCount] = useState(1);
-  const [charactersPoint, setCharactersPoint] = useState(50);
+  const [charactersPoint, setCharactersPoint] = useState(0);
   const [charactersDamage, setCharactersDamage] = useState(20);
   const [charactersDefense, setCharactersDefense] = useState(20);
   const [charactersBonusSkill, setCharactersBonusSkill] = useState(20);
@@ -480,7 +480,8 @@ export default function Game() {
                           }}
                         >
                           <p style={{ height: "5px" }}><strong style={{ color: "blue" }}>💠 Points: {charactersPoint ?? 0}</strong></p>
-                          <p style={{ height: "20px" }}><strong style={{ color: "blue" }}>🔶 Action:</strong></p>
+                          <p style={{ height: "5px" }}><strong style={{ color: "purple" }}>🌀 Skill: {userSkills?.Skill_Name ?? "???"} (Lv. {userSkills?.Skill_Level ?? "0"})</strong></p>
+                          <p style={{ height: "20px" }}><strong style={{ color: "orange" }}>🔶 Action:</strong></p>
                           <div style={{ bottom: "20px", display: "flex", gap: "15px" }}>
                             <Tooltip title="Attack the enemy & Gain 1 💠 Point" color="red" placement="bottom">
                               <button disabled={currentTurn === "👤 Player" ? (false) : (true)} className="hover-effect"
@@ -565,6 +566,7 @@ export default function Game() {
                               <p style={{ height: "5px" }}><strong style={{ color: "darkred" }}>💥 Damage: {charactersDamage ?? 0}</strong></p>
                               <p style={{ height: "5px" }}><strong style={{ color: "red" }}>❤️️ Health: {charactersHP ?? 0}/{charactersMaxHP ?? 0}</strong></p>
                               <p style={{ height: "5px" }}><strong style={{ color: "green" }}>🛡️ Defense: {charactersDefense}</strong></p>
+                              <p style={{ height: "5px" }}><strong style={{ color: "purple" }}>🌀 Skill Damage: x{Number(1 + (charactersBonusSkill / 100))}</strong></p>
                             </Card>
                           </div>
                         ) : (
