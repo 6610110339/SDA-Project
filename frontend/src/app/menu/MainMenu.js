@@ -98,7 +98,7 @@ export default function MainMenu() {
               variant="success"
               size="lg"
               onClick={() => router.push("/stagelist")}
-              className="mb-3 fw-bold"
+              className="hover-effect"
             >
               Start Game
             </Button>
@@ -106,16 +106,27 @@ export default function MainMenu() {
               variant="primary"
               size="lg"
               onClick={() => router.push("/shop")}
-              className="mb-3 fw-bold"
+              className="hover-effect"
             >
               Upgrade  Shop
+            </Button>
+            <Button
+              size="lg"
+              onClick={() => router.push("/skills")}
+              className="hover-effect"
+              style={{
+                backgroundColor: "purple",
+                borderColor: "black"
+              }}
+            >
+              Skills
             </Button>
             {userRole === "Admin" && (
               <Button
                 variant="warning"
                 size="lg"
                 onClick={() => router.push("/admin")}
-                className="mb-3 fw-bold"
+                className="hover-effect"
               >
                 Admin Panel
               </Button>
