@@ -9,7 +9,7 @@
     "displayName": "User"
   },
   "options": {
-    "timestamps": true
+    "draftAndPublish": false
   },
   "attributes": {
     "username": {
@@ -71,11 +71,23 @@
       "target": "api::character.character",
       "inversedBy": "owner"
     },
+<<<<<<< HEAD
     "upgrade": {
       "type": "relation",
       "relation": "oneToOne",
       "target": "api::upgrade.upgrade",
       "mappedBy": "owner"
+=======
+    "Profilepicture": {
+      "allowedTypes": [
+        "images",
+        "files",
+        "videos",
+        "audios"
+      ],
+      "type": "media",
+      "multiple": false
+>>>>>>> 2905a946bb97a8f876064abb940387e5d37917bf
     }
   }
 }

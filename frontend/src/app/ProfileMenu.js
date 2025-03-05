@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Popover, Avatar, Button } from "antd";
-import { UserOutlined, LogoutOutlined } from "@ant-design/icons";
+import { Popover, Avatar, Button, Input } from "antd";
+import { UserOutlined, LogoutOutlined, EditOutlined } from "@ant-design/icons";
 import { Modal } from "react-bootstrap";
 import { useRouter } from "next/navigation";
 
@@ -11,6 +11,9 @@ export default function ProfileMenu() {
     const [loading, setLoading] = useState(true);
     const [userCharacters, setUserCharacters] = useState(null);
     const [showModalLogout, setShowModalLogout] = useState(false);
+    const [showModalEdit, setShowModalEdit] = useState(false);
+    const [newUsername, setNewUsername] = useState("");
+    const [newEmail, setNewEmail] = useState(""); // New email state
     const router = useRouter();
 
     useEffect(() => {
@@ -25,26 +28,21 @@ export default function ProfileMenu() {
     const fetchUserInfo = async (token) => {
         try {
             const meResponse = await fetch("http://localhost:1337/api/users/me", {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: { Authorization: `Bearer ${token}` },
             });
-
             if (!meResponse.ok) throw new Error("Failed to fetch user info");
-
             const meData = await meResponse.json();
 
             const fullResponse = await fetch(`http://localhost:1337/api/users/${meData.id}?populate=*`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
+                headers: { Authorization: `Bearer ${token}` },
             });
-
             if (!fullResponse.ok) throw new Error("Failed to fetch full user info");
-
             const fullData = await fullResponse.json();
+
             setUser(fullData);
-            setUserCharacters(fullData.character)
+            setUserCharacters(fullData.character);
+            setNewUsername(fullData.username);
+            setNewEmail(fullData.email); // Set the email value
         } catch (err) {
             console.error("Error loading user:", err);
         } finally {
@@ -57,6 +55,31 @@ export default function ProfileMenu() {
         localStorage.removeItem("userData");
         router.push("/");
     };
+
+    const handleEditProfile = async () => {
+        const token = localStorage.getItem("authToken");
+        if (!token) return;
+
+        try {
+            const response = await fetch(`http://localhost:1337/api/users/${user.id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`,
+                },
+                body: JSON.stringify({ username: newUsername, email: newEmail }), // Update both fields
+            });
+
+            if (!response.ok) throw new Error("Failed to update profile");
+
+            setUser((prev) => ({ ...prev, username: newUsername, email: newEmail })); // Update both fields in the state
+            setShowModalEdit(false);
+        } catch (err) {
+            console.error("Error updating profile:", err);
+        }
+    };
+
+    const profilePictureUrl = user?.Profilepicture?.url;
 
     const content = (
         <div style={{ minWidth: "200px" }}>
@@ -82,11 +105,22 @@ export default function ProfileMenu() {
                     <p><strong>Username:</strong> {user.username}</p>
                     <p><strong>Email:</strong> {user.email}</p>
                     <p><strong>Role:</strong> {user.role?.name || "N/A"}</p>
+
+                    <Button
+                        type="primary"
+                        icon={<EditOutlined />}
+                        style={{ backgroundColor: "blue", color: "white", marginBottom: "10px" }}
+                        onClick={() => setShowModalEdit(true)}
+                        block
+                    >
+                        Edit Profile
+                    </Button>
+
                     <Button
                         type="primary"
                         danger
                         icon={<LogoutOutlined />}
-                        onClick={() => { setShowModalLogout(true) }}
+                        onClick={() => setShowModalLogout(true)}
                         block
                     >
                         Logout
@@ -100,21 +134,39 @@ export default function ProfileMenu() {
 
     return (
         <div>
-            <Popover
-                content={content}
-                title=""
-                trigger="click"
-                placement="bottomRight"
-            >
+            <Popover content={content} title="" trigger="click" placement="bottomRight">
                 <Avatar
                     size="large"
-                    icon={<UserOutlined />}
-                    style={{
-                        backgroundColor: "rgb(105, 105, 105)",
-                        cursor: "pointer",
-                    }}
+                    src={profilePictureUrl ? `http://localhost:1337${profilePictureUrl}` : undefined}
+                    icon={!profilePictureUrl && <UserOutlined />}
+                    style={{ backgroundColor: "rgb(105, 105, 105)", cursor: "pointer" }}
                 />
             </Popover>
+
+            {/* Edit Profile Modal */}
+            <Modal show={showModalEdit} onHide={() => setShowModalEdit(false)} centered>
+                <Modal.Header>
+                    <Modal.Title>Edit your profile</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <Input
+                        value={newUsername}
+                        onChange={(e) => setNewUsername(e.target.value)}
+                        placeholder="Enter new username"
+                    />
+                    <Input
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
+                        placeholder="Enter new email"
+                        style={{ marginTop: "10px" }}
+                    />
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowModalEdit(false)}>Cancel</Button>
+                    <Button type="primary" onClick={() => handleEditProfile()}>Save</Button>
+                </Modal.Footer>
+            </Modal>
+
             {/* Logout Modal */}
             <Modal show={showModalLogout} onHide={() => setShowModalLogout(false)} centered>
                 <Modal.Header>
