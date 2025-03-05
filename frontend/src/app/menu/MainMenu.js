@@ -16,6 +16,7 @@ export default function MainMenu() {
   const [token, setToken] = useState(null);
   const [userCharacters, setUserCharacters] = useState(null);
   const [showClassPopup, setShowClassPopup] = useState(false);
+  const [showHTP, setShowHTP] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -79,6 +80,8 @@ export default function MainMenu() {
           <Navbar.Toggle aria-controls="basic-navbar-nav" />
           <Navbar.Collapse id="basic-navbar-nav">
             <Nav className="ms-auto">
+              <Nav.Link
+                onClick={() => setShowHTP(true)}>How to Play</Nav.Link>
               {token && (
                 <ProfileMenu />
               )}
@@ -130,6 +133,18 @@ export default function MainMenu() {
           <div className="d-flex gap-2">
             <Button className="w-50" variant="secondary" onClick={() => setShowModalLogout(false)}>Cancel</Button>
             <Button className="w-50" variant="danger" onClick={() => buttonLogout()}>Logout</Button>
+          </div>
+        </Modal.Body>
+      </Modal>
+
+      {/* How to Play Modal */}
+      <Modal show={showHTP} onHide={() => setShowHTP(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>How to Play</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <div className="d-flex gap-2">
+
           </div>
         </Modal.Body>
       </Modal>
